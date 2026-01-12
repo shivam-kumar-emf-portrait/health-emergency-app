@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard | Health Assist</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <div class="dashboard">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h3>Health Assist</h3>
+      <button onclick="showNormal()">Normal Mode</button>
+      <button onclick="goEmergency()" class="danger">Emergency Mode</button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+
+      <!-- Normal Mode -->
+      <section id="normalMode">
+        <h2>Normal Mode</h2>
+
+        <div class="chat-box" id="chatBox">
+          <!-- Chat messages appear here -->
+        </div>
+        
+        <textarea
+          id="symptoms"
+          placeholder="Describe your symptoms..."
+        ></textarea>
+
+        <div class="chat-actions">
+          <button class="btn secondary" onclick="newChat()">New Chat</button>
+          <button class="btn primary" onclick="sendSymptoms()">Send</button>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/normalMode.js"></script>
+
+  <script>
+    function goEmergency() {
+      window.location.href = "emergency.html";
+    }
+
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

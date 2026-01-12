@@ -1,0 +1,90 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #450a0a, #020617);
+  color: #fca5a5;
+  font-family: "Inter", sans-serif;
+}
+
+.emergency-container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 50px 30px;
+  animation: fadeUp 0.6s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+  text-align: center;
+  font-weight: 600;
+  color: #fee2e2;
+}
+
+.sub {
+  text-align: center;
+  color: #fecaca;
+  margin-bottom: 35px;
+}
+
+/* Emergency options */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.grid button {
+  padding: 22px;
+  border-radius: 18px;
+  border: 1px solid rgba(239,68,68,0.5);
+  background: rgba(255,255,255,0.06);
+  color: #fee2e2;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.35s ease;
+}
+
+.grid button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 30px rgba(239,68,68,0.6);
+}
+
+/* Hospital card */
+.hospital-card {
+  margin-top: 25px;
+  padding: 20px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.actions button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.actions button:first-child {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: white;
+}
+
+.actions button:last-child {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+}

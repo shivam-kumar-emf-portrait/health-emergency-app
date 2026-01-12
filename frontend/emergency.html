@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Emergency Mode</title>
+  <link rel="stylesheet" href="css/emergency.css" />
+</head>
+<body>
+
+  <div class="emergency-container">
+    <h1>🚨 Emergency Mode</h1>
+    <p class="sub">Select the emergency type</p>
+
+    <!-- Emergency Type -->
+    <div class="grid" id="emergencyTypes">
+      <button onclick="selectEmergency('CRITICAL')">❤️ Heart / Chest Pain</button>
+      <button onclick="selectEmergency('CRITICAL')">🫁 Breathing Problem</button>
+      <button onclick="selectEmergency('CRITICAL')">🩸 Heavy Bleeding</button>
+      <button onclick="selectEmergency('CRITICAL')">🚗 Road Accident</button>
+      <button onclick="selectEmergency('MEDICAL')">🤰 Pregnancy Emergency</button>
+      <button onclick="selectEmergency('OTHER')">❓ Other Emergency</button>
+    </div>
+
+    <!-- Results -->
+    <div id="hospitalResults"></div>
+  </div>
+
+  <script src="js/emergency.js"></script>
+</body>
+</html>
