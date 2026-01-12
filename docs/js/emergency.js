@@ -22,15 +22,18 @@ function selectEmergency(type) {
 }
 
 async function fetchHospitals() {
-  const res = await fetch("http://localhost:5000/api/emergency/find-hospitals", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      lat: userLocation.lat,
-      lng: userLocation.lng,
-      emergencyType: selectedEmergency
-    })
-  });
+  const res = await fetch(
+    "https://health-emergency-backend.onrender.com/api/emergency/find-hospitals",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        lat: userLocation.lat,
+        lng: userLocation.lng,
+        emergencyType: selectedEmergency
+      })
+    }
+  );
 
   const data = await res.json();
   renderHospitals(data.hospitals);
@@ -66,15 +69,18 @@ function renderHospitals(hospitals) {
 }
 
 async function notifyHospital(hospitalId) {
-  await fetch("http://localhost:5000/api/emergency/notify", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      hospitalId,
-      emergencyType: selectedEmergency,
-      userLocation
-    })
-  });
+  await fetch(
+    "https://health-emergency-backend.onrender.com/api/emergency/notify",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hospitalId,
+        emergencyType: selectedEmergency,
+        userLocation
+      })
+    }
+  );
 
   alert("🚨 Hospital alerted successfully");
 }

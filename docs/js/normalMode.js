@@ -49,17 +49,20 @@ async function sendSymptoms() {
   }
 
   try {
-    const res = await fetch("http://localhost:5000/api/normal/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        symptoms: userText,
-        chatSessionId: "default",
-      }),
-    });
+    const res = await fetch(
+      "https://health-emergency-backend.onrender.com/api/normal/chat",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          symptoms: userText,
+          chatSessionId: "default",
+        }),
+      }
+    );
 
     if (!res.ok) {
       throw new Error("Server not responding");
