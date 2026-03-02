@@ -8,22 +8,55 @@
 </head>
 
 <body>
+  <div class="cursor-glow"></div>
 
   <!-- NAVBAR -->
   <nav class="navbar">
     <div class="logo">🫀 Lifeline</div>
-    <button class="login-btn" onclick="goLogin()">Login / Signup</button>
+    <div class="login-group">
+  <button class="login-btn" onclick="goLogin('user')">User Login</button>
+  <button class="login-btn hospital" onclick="goLogin('hospital')">Hospital Login</button>
+</div>
   </nav>
 
   <!-- HERO -->
-  <section class="hero">
-    <h1>When seconds matter,<br><span>Lifeline</span> guides you</h1>
+  <!-- HERO -->
+<section class="hero">
+  <div class="heart-3d"></div>
+
+  <!-- Floating Medical Elements -->
+  <div class="floating heart-outline"></div>
+  <div class="floating cross"></div>
+  <div class="floating dot-grid"></div>
+
+  <!-- ECG Line -->
+  <svg class="ecg-line" viewBox="0 0 1200 200" preserveAspectRatio="none">
+    <path d="M0 100 L200 100 L240 60 L280 140 L320 100 L600 100 
+             L640 70 L680 130 L720 100 L1200 100"
+          fill="none"
+          stroke="#3b82f6"
+          stroke-width="2" />
+  </svg>
+
+  <div class="hero-content">
+    <h1>
+      When seconds matter,<br>
+      <span>Lifeline</span> guides you
+    </h1>
+
     <p>
       AI-powered medical guidance & emergency hospital matching  
       to prevent deaths caused by delayed treatment.
     </p>
-    <button class="cta" onclick="scrollToFeatures()">Explore How It Works</button>
-  </section>
+
+    <button class="cta" onclick="scrollToFeatures()">
+      Explore How It Works
+    </button>
+
+    
+  </div>
+
+</section>
 
   <!-- PROBLEM -->
   <section class="section dark">

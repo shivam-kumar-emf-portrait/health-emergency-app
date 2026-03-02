@@ -1,102 +1,208 @@
-const chatBox = document.getElementById("chatBox");
-const input = document.getElementById("symptoms");
+const BASE_URL = "http://localhost:5000";
 
-/* Send on Enter (Shift+Enter for new line) */
-input.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    sendSymptoms();
+/* ================= USER-SPECIFIC STORAGE ================= */
+
+function getUserId() {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.id;
+  } catch {
+    return null;
   }
-});
+}
 
-function appendMessage(role, text) {
-  const msg = document.createElement("div");
-  msg.className = "chat-msg " + role;
-  msg.innerHTML = `<strong>${role === "user" ? "You" : "AI"}:</strong> ${text}`;
-  chatBox.appendChild(msg);
+function getStorageKey() {
+  const userId = getUserId();
+  return userId ? `ha_chats_${userId}` : "ha_chats_guest";
+}
+
+let chats = JSON.parse(localStorage.getItem(getStorageKey())) || [];
+let activeChatId = null;
+
+/* ================= INIT ================= */
+window.onload = function () {
+
+  if (chats.length === 0) {
+    createNewChat();
+  } else {
+    activeChatId = chats[0].id;
+  }
+
+  renderSidebar();
+  renderActiveChat();
+
+  const textarea = document.getElementById("symptoms");
+  textarea.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendSymptoms();
+    }
+  });
+};
+
+/* ================= CREATE NEW CHAT ================= */
+function createNewChat() {
+  const newChat = {
+    id: Date.now(),
+    title: "New Chat",
+    messages: []
+  };
+
+  chats.unshift(newChat);
+  activeChatId = newChat.id;
+
+  saveChats();
+  renderSidebar();
+  renderActiveChat();
+}
+
+/* ================= SAVE ================= */
+function saveChats() {
+  localStorage.setItem(getStorageKey(), JSON.stringify(chats));
+}
+
+/* ================= SIDEBAR ================= */
+function renderSidebar() {
+
+  const sidebar = document.querySelector(".sidebar");
+
+  const oldList = document.getElementById("chatList");
+  if (oldList) oldList.remove();
+
+  const chatList = document.createElement("div");
+  chatList.id = "chatList";
+  chatList.className = "chat-list";
+
+  chats.forEach(chat => {
+
+    const item = document.createElement("div");
+    item.className = "chat-item";
+    if (chat.id === activeChatId) item.classList.add("active");
+
+    const title = document.createElement("span");
+    title.innerText = chat.title;
+
+    const deleteBtn = document.createElement("span");
+    deleteBtn.innerText = "×";
+    deleteBtn.className = "delete-chat";
+
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteChat(chat.id);
+    };
+
+    item.onclick = () => {
+      activeChatId = chat.id;
+      renderSidebar();
+      renderActiveChat();
+    };
+
+    item.appendChild(title);
+    item.appendChild(deleteBtn);
+    chatList.appendChild(item);
+  });
+
+  sidebar.appendChild(chatList);
+}
+
+function deleteChat(id) {
+  chats = chats.filter(chat => chat.id !== id);
+
+  if (chats.length === 0) {
+    createNewChat();
+  } else {
+    activeChatId = chats[0].id;
+  }
+
+  saveChats();
+  renderSidebar();
+  renderActiveChat();
+}
+
+/* ================= RENDER CHAT ================= */
+function renderActiveChat() {
+
+  const chatBox = document.getElementById("chatBox");
+  chatBox.innerHTML = "";
+
+  const activeChat = chats.find(c => c.id === activeChatId);
+  if (!activeChat) return;
+
+  activeChat.messages.forEach(msg => {
+    const div = document.createElement("div");
+    div.className = msg.role === "user" ? "msg user" : "msg ai";
+    div.innerText = msg.content;
+    chatBox.appendChild(div);
+  });
+
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function typeAIResponse(text) {
-  const msg = document.createElement("div");
-  msg.className = "chat-msg ai";
-  msg.innerHTML = `<strong>AI:</strong> <span></span>`;
-  chatBox.appendChild(msg);
-
-  const span = msg.querySelector("span");
-  let i = 0;
-
-  const interval = setInterval(() => {
-    span.innerHTML += text[i] || "";
-    chatBox.scrollTop = chatBox.scrollHeight;
-    i++;
-    if (i >= text.length) clearInterval(interval);
-  }, 18);
-}
-
-/* ---------------- MAIN SEND FUNCTION ---------------- */
+/* ================= SEND ================= */
 async function sendSymptoms() {
-  if (!input.value.trim()) return;
 
-  const userText = input.value.trim();
-  appendMessage("user", userText);
-  input.value = "";
+  const input = document.getElementById("symptoms");
+  const text = input.value.trim();
+  if (!text) return;
 
-  const token = localStorage.getItem("token");
-  if (!token) {
-    typeAIResponse("Please login again to continue.");
-    return;
+  const activeChat = chats.find(c => c.id === activeChatId);
+
+  if (activeChat.messages.length === 0) {
+    activeChat.title = text.slice(0, 25);
   }
 
-  try {
-    const res = await fetch(
-      "https://health-emergency-backend.onrender.com/api/normal/chat",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          symptoms: userText,
-          chatSessionId: "default",
-        }),
-      }
-    );
+  activeChat.messages.push({ role: "user", content: text });
+  input.value = "";
 
-    if (!res.ok) {
-      throw new Error("Server not responding");
-    }
+  renderActiveChat();
+  saveChats();
+  renderSidebar();
+
+  try {
+
+    const res = await fetch(`${BASE_URL}/api/normal/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify({ symptoms: text })
+    });
 
     const data = await res.json();
 
-    if (data && data.aiResponse) {
-      typeAIResponse(data.aiResponse.replace(/\n/g, " "));
-    } else {
-      typeAIResponse(
-        "I couldn’t understand clearly. Could you describe your symptoms again?"
-      );
-    }
-
-    /* Inline emergency hint */
-    if (data?.severity === "EMERGENCY") {
-      const warn = document.createElement("div");
-      warn.className = "chat-warning";
-      warn.innerText =
-        "⚠️ This may be serious. Please switch to Emergency Mode.";
-      chatBox.appendChild(warn);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+    await typeWriterEffect(data.aiResponse, activeChat);
 
   } catch (err) {
-    console.error(err);
-    typeAIResponse(
-      "I’m having trouble connecting right now. Please try again in a moment."
-    );
+    console.error("Chat error:", err);
   }
 }
 
-/* New chat */
+/* ================= TYPEWRITER ================= */
+async function typeWriterEffect(text, activeChat) {
+
+  const chatBox = document.getElementById("chatBox");
+
+  const aiMessage = { role: "assistant", content: "" };
+  activeChat.messages.push(aiMessage);
+
+  const div = document.createElement("div");
+  div.className = "msg ai";
+  chatBox.appendChild(div);
+
+  for (let i = 0; i < text.length; i++) {
+    aiMessage.content += text[i];
+    div.innerText = aiMessage.content;
+    await new Promise(resolve => setTimeout(resolve, 8));
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  saveChats();
+}
+
 function newChat() {
-  chatBox.innerHTML = "";
+  createNewChat();
 }

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Login | Health Assist</title>
+  <title>Login | Lifeline</title>
   <link rel="stylesheet" href="css/auth.css" />
 </head>
 <body>
@@ -10,24 +10,38 @@
   <div class="auth-card">
     <h2 id="formTitle">Login</h2>
 
-    <!-- Signup only -->
-    <input type="text" id="name" placeholder="Name" class="signup-only" />
-    <input type="number" id="age" placeholder="Age" class="signup-only" />
-    <input type="text" id="conditions" placeholder="Known conditions (comma separated)" class="signup-only" />
+    <!-- USER REGISTER ONLY -->
+    <input type="text" id="name" placeholder="Name" class="signup-only" style="display:none;" />
+    <input type="number" id="age" placeholder="Age" class="signup-only" style="display:none;" />
+    <input type="text" id="conditions" placeholder="Known conditions (comma separated)" class="signup-only" style="display:none;" />
 
-    <!-- Common -->
+    <!-- HOSPITAL REGISTER ONLY -->
+    <input type="text" id="hospitalName" placeholder="Hospital Name" class="hospital-only" style="display:none;" />
+    <input type="text" id="contactNumber" placeholder="Contact Number" class="hospital-only" style="display:none;" />
+
+    <input type="number" step="any" id="lat" placeholder="Latitude (e.g. 22.5726)" class="hospital-only" style="display:none;" />
+    <input type="number" step="any" id="lng" placeholder="Longitude (e.g. 88.3639)" class="hospital-only" style="display:none;" />
+
+    <!-- 📍 NEW BUTTON -->
+    <button type="button"
+            class="hospital-only"
+            id="locationBtn"
+            onclick="getCurrentLocation()"
+            style="display:none;">
+      📍 Get Current Location
+    </button>
+
+    <!-- COMMON -->
     <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
 
-    <button id="submitBtn" onclick="loginUser()">Login</button>
+    <button id="submitBtn" onclick="handleAuth()">Login</button>
 
     <p class="toggle-text">
       <span id="toggleMsg">Don’t have an account?</span>
       <a href="#" onclick="toggleMode()" id="toggleLink">Register</a>
     </p>
   </div>
-
-  <div id="toast"></div>
 
   <script src="js/auth.js"></script>
 </body>

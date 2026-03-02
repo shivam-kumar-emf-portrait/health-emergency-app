@@ -146,3 +146,202 @@ body {
   padding: 120px 20px;
   text-align: center;
 }
+
+
+
+/* ================= HERO WOW EFFECT ================= */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+}
+
+/* HERO CONTENT ANIMATION */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  animation: fadeUp 1.2s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+
+/* ECG LINE */
+.ecg-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  opacity: 0.15;
+  z-index: 1;
+  animation: ecgMove 4s linear infinite;
+}
+
+@keyframes ecgMove {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-200px); }
+}
+
+/* FLOATING ELEMENTS */
+.floating {
+  position: absolute;
+  opacity: 0.08;
+  animation: float 18s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-30px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Heart Outline */
+.heart-outline {
+  width: 120px;
+  height: 120px;
+  border: 2px solid #3b82f6;
+  border-radius: 50%;
+  top: 20%;
+  left: 15%;
+}
+
+/* Medical Cross */
+.cross {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(#3b82f6, #2563eb);
+  clip-path: polygon(
+    40% 0%, 60% 0%, 60% 40%, 100% 40%, 100% 60%, 
+    60% 60%, 60% 100%, 40% 100%, 
+    40% 60%, 0% 60%, 0% 40%, 40% 40%
+  );
+  top: 60%;
+  right: 15%;
+}
+
+/* Dot Grid */
+.dot-grid {
+  width: 150px;
+  height: 150px;
+  background-image: radial-gradient(#3b82f6 2px, transparent 2px);
+  background-size: 20px 20px;
+  top: 30%;
+  right: 25%;
+}
+
+/* CTA SHIMMER */
+.cta {
+  position: relative;
+  overflow: hidden;
+}
+
+.cta::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.4),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: shimmer 5s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  50% { left: 120%; }
+  100% { left: 120%; }
+}
+
+/* ================= CURSOR GLOW ================= */
+
+.cursor-glow {
+  position: fixed;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(59,130,246,0.15), transparent 60%);
+  pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+}
+/* ================= SCROLL REVEAL ================= */
+
+.section,
+.final {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
+
+.section.visible,
+.final.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* ================= PROFESSIONAL PUMPING HEART ================= */
+
+.heart-3d {
+  position: absolute;
+  right: 12%;
+  top: 35%;
+  width: 90px;
+  height: 90px;
+  transform: rotate(-45deg);
+  background: linear-gradient(145deg, #ff4d6d, #b91c1c);
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.4),
+    inset -8px -8px 20px rgba(0,0,0,0.4),
+    inset 8px 8px 20px rgba(255,255,255,0.08);
+  border-radius: 20px;
+  animation: heartbeat 1.8s ease-in-out infinite;
+  opacity: 0.18;
+}
+
+.heart-3d::before,
+.heart-3d::after {
+  content: "";
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  background: inherit;
+  border-radius: 50%;
+  box-shadow:
+    inset -6px -6px 15px rgba(0,0,0,0.4),
+    inset 6px 6px 15px rgba(255,255,255,0.08);
+}
+
+.heart-3d::before {
+  top: -45px;
+  left: 0;
+}
+
+.heart-3d::after {
+  left: 45px;
+  top: 0;
+}
+
+/* HEARTBEAT ANIMATION */
+@keyframes heartbeat {
+  0%   { transform: rotate(-45deg) scale(1); }
+  10%  { transform: rotate(-45deg) scale(1.08); }
+  20%  { transform: rotate(-45deg) scale(1); }
+  30%  { transform: rotate(-45deg) scale(1.06); }
+  40%  { transform: rotate(-45deg) scale(1); }
+  100% { transform: rotate(-45deg) scale(1); }
+}

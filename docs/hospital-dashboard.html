@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hospital ERP | Health Assist</title>
+  <link rel="stylesheet" href="css/hospital.css">
+</head>
+
+<body class="hospital-body">
+
+<script>
+if (!localStorage.getItem("hospitalToken")) {
+  window.location.replace("login.html?role=hospital");
+}
+
+/* ========= BACK BUTTON INTERCEPT ========= */
+window.history.pushState(null, "", window.location.href);
+
+window.addEventListener("popstate", function () {
+  document.getElementById("logoutModal").style.display = "flex";
+});
+</script>
+
+
+<!-- GLOBAL ALERT -->
+<div id="globalAlert" class="global-alert hidden">
+  <div class="alert-content">
+    <span id="alertText"></span>
+    <button onclick="closeAlert()">✕</button>
+  </div>
+</div>
+
+
+<div class="dashboard-wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2 class="logo">Health Assist</h2>
+
+    <nav id="sidebarNav">
+      <button data-section="overview" class="active">Overview</button>
+      <button data-section="emergency">Emergency Board</button>
+      <button data-section="doctors">Doctors</button>
+      <button data-section="nurses">Nurses</button>
+      <button data-section="resources">Beds & ICU</button>
+      <button data-section="blood">Blood Bank</button>
+      <button data-section="equipment">Equipment</button>
+    </nav>
+  </aside>
+
+
+  <!-- MAIN -->
+  <main class="content-area">
+
+    <header class="topbar">
+
+      <h1 id="sectionTitle">Overview</h1>
+
+      <!-- Hospital Status -->
+      <div class="hospital-status-wrapper">
+
+        <span id="hospitalStatus" class="hospital-status">
+          🟢 OPEN
+        </span>
+
+        <button onclick="toggleHospitalStatus()" class="toggle-status-btn">
+          Toggle Open/Close
+        </button>
+
+      </div>
+
+      <button onclick="logoutHospital()" class="logout-btn">
+        Logout
+      </button>
+
+    </header>
+
+
+    <div id="dynamicContent"></div>
+
+  </main>
+
+</div>
+
+
+<script src="js/hospital.js"></script>
+
+
+<!-- LOGOUT MODAL -->
+<div id="logoutModal" class="logout-modal">
+  <div class="logout-box">
+    <h3>Confirm Logout</h3>
+    <p>Are you sure you want to logout?</p>
+
+    <div class="logout-actions">
+      <button onclick="confirmLogout()" class="yes-btn">Yes</button>
+      <button onclick="closeLogoutModal()" class="no-btn">No</button>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+
+function logoutHospital() {
+  document.getElementById("logoutModal").style.display = "flex";
+}
+
+function closeLogoutModal() {
+  document.getElementById("logoutModal").style.display = "none";
+  window.history.pushState(null, "", window.location.href);
+}
+
+function confirmLogout() {
+  localStorage.removeItem("hospitalToken");
+  window.location.replace("login.html?role=hospital");
+}
+
+</script>
+
+</body>
+</html>

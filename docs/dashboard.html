@@ -9,11 +9,27 @@
 <body>
   <div class="dashboard">
 
+<script>
+if (!localStorage.getItem("token")) {
+  window.location.replace("login.html");
+}
+
+/* ========= BACK BUTTON INTERCEPT ========= */
+window.history.pushState(null, "", window.location.href);
+
+window.addEventListener("popstate", function () {
+  document.getElementById("logoutModal").style.display = "flex";
+});
+</script>
+
     <!-- Sidebar -->
     <aside class="sidebar">
       <h3>Health Assist</h3>
       <button onclick="showNormal()">Normal Mode</button>
       <button onclick="goEmergency()" class="danger">Emergency Mode</button>
+      <button onclick="newChat()" class="new-chat-btn">
+        + New Chat
+      </button>
     </aside>
 
     <!-- Main Content -->
@@ -25,40 +41,59 @@
       </div>
 
       <!-- Normal Mode -->
-      <section id="normalMode">
-        <h2>Normal Mode</h2>
+      <section id="normalMode" class="chat-layout">
 
-        <div class="chat-box" id="chatBox">
-          <!-- Chat messages appear here -->
-        </div>
-        
-        <textarea
-          id="symptoms"
-          placeholder="Describe your symptoms..."
-        ></textarea>
+        <div class="chat-body" id="chatBox"></div>
 
-        <div class="chat-actions">
-          <button class="btn secondary" onclick="newChat()">New Chat</button>
-          <button class="btn primary" onclick="sendSymptoms()">Send</button>
+        <div class="chat-input-area">
+          <textarea
+            id="symptoms"
+            placeholder="Type your symptoms here..."
+            rows="1"
+          ></textarea>
+
+          <button class="send-btn" onclick="sendSymptoms()">Send</button>
         </div>
+
       </section>
 
     </main>
 
   </div>
 
-  <!-- Scripts -->
   <script src="js/normalMode.js"></script>
 
   <script>
     function goEmergency() {
-      window.location.href = "emergency.html";
+      window.location.replace("emergency.html");
     }
 
     function logout() {
+      document.getElementById("logoutModal").style.display = "flex";
+    }
+
+    function closeLogoutModal() {
+      document.getElementById("logoutModal").style.display = "none";
+      window.history.pushState(null, "", window.location.href);
+    }
+
+    function confirmLogout() {
       localStorage.removeItem("token");
-      window.location.href = "login.html";
+      window.location.replace("login.html");
     }
   </script>
+
+  <!-- LOGOUT MODAL -->
+  <div id="logoutModal" class="logout-modal">
+    <div class="logout-box">
+      <h3>Confirm Logout</h3>
+      <p>Are you sure you want to logout?</p>
+      <div class="logout-actions">
+        <button onclick="confirmLogout()" class="yes-btn">Yes</button>
+        <button onclick="closeLogoutModal()" class="no-btn">No</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

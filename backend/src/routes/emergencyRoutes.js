@@ -6,7 +6,12 @@ const {
   notifyHospital
 } = require("../controllers/emergencyController");
 
+const authMiddleware = require("../middleware/authMiddleware");
+
+// Find hospitals (can stay public if needed)
 router.post("/find-hospitals", findHospitals);
-router.post("/notify", notifyHospital);
+
+// Protect notify route
+router.post("/notify", authMiddleware, notifyHospital);
 
 module.exports = router;

@@ -1,30 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Emergency Mode</title>
-  <link rel="stylesheet" href="css/emergency.css" />
-</head>
 <body>
 
-  <div class="emergency-container">
-    <h1>🚨 Emergency Mode</h1>
-    <p class="sub">Select the emergency type</p>
+  <div class="top-bar">
+    <button class="normal-mode-btn" onclick="goToNormalMode()">
+      ⬅ Go to Normal Mode
+      <link rel="stylesheet" href="css/emergency.css">
+    </button>
+  </div>
 
-    <!-- Emergency Type -->
+  <div class="emergency-container">
+
+    <h1>Emergency Mode</h1>
+    <p class="sub">Select the type of emergency</p>
+
     <div class="grid" id="emergencyTypes">
-      <button onclick="selectEmergency('CRITICAL')">❤️ Heart / Chest Pain</button>
-      <button onclick="selectEmergency('CRITICAL')">🫁 Breathing Problem</button>
-      <button onclick="selectEmergency('CRITICAL')">🩸 Heavy Bleeding</button>
-      <button onclick="selectEmergency('CRITICAL')">🚗 Road Accident</button>
-      <button onclick="selectEmergency('MEDICAL')">🤰 Pregnancy Emergency</button>
-      <button onclick="selectEmergency('OTHER')">❓ Other Emergency</button>
+      <button onclick="selectEmergency('CARDIAC')">❤️ Cardiac Arrest</button>
+      <button onclick="selectEmergency('RESPIRATORY')">🫁 Breathing Issue</button>
+      <button onclick="selectEmergency('TRAUMA')">🚗 Accident / Trauma</button>
+      <button onclick="selectEmergency('BLEEDING')">🩸 Heavy Bleeding</button>
+      <button onclick="selectEmergency('STROKE')">🧠 Stroke Symptoms</button>
+      <button onclick="selectEmergency('PREGNANCY')">🤰 Pregnancy Emergency</button>
+      <button onclick="selectEmergency('PEDIATRIC')">👶 Child Emergency</button>
+      <button onclick="selectEmergency('GENERAL')">❓ General Emergency</button>
     </div>
 
-    <!-- Results -->
     <div id="hospitalResults"></div>
+
+  </div>
+
+  <!-- Hospital Details Modal -->
+  <div id="hospitalModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal()">×</span>
+      <div id="modalBody"></div>
+    </div>
   </div>
 
   <script src="js/emergency.js"></script>
 </body>
-</html>
