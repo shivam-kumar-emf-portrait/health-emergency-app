@@ -1,4 +1,7 @@
-const API_BASE = "http://localhost:5000";
+const BASE_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : "https://health-emergency-backend.onrender.com";
 
 
 const hospitalToken = localStorage.getItem("hospitalToken");
