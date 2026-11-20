@@ -2,7 +2,12 @@
  * Lifeline Health Emergency & Hospital SaaS - Unified API Client
  */
 const API_BASE_URL = (() => {
-    // If opened directly as a file or from an external dev server, point to Spring Boot on 8080
+    // 1. If running on Vercel, GitHub Pages, or any external cloud host, use the live Render backend
+    if (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('github.io') || 
+        (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && window.location.protocol !== 'file:')) {
+        return 'https://lifeline-backend-0zz7.onrender.com';
+    }
+    // 2. Local development fallback: if opened directly as file or dev server, point to local Spring Boot on 8080
     if (window.location.protocol === 'file:' || window.location.port !== '8080') {
         return 'http://localhost:8080';
     }
