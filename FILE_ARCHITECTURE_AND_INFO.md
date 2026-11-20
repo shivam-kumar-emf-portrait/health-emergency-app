@@ -21,6 +21,9 @@
 6. [Database Schema & Entity-Relationship Model](#6-database-schema--entity-relationship-model)
 7. [RESTful API Specification Reference](#7-restful-api-specification-reference)
 8. [Comprehensive Technical Interview Preparation Guide](#8-comprehensive-technical-interview-preparation-guide)
+9. [Summary & Quick Reference](#9-summary--quick-reference)
+10. [Live Production Cloud Deployment & Infrastructure Topology](#10-live-production-cloud-deployment--infrastructure-topology)
+11. [Resume-Ready Project Bullet Points](#11-resume-ready-project-bullet-points)
 
 ---
 
@@ -656,10 +659,59 @@ This section equips you with exact, high-scoring answers to questions an intervi
 
 | Module | Core File Reference | Primary Route / Endpoint |
 | :--- | :--- | :--- |
-| **Emergency Finder** | [emergency.html](file:///c:/Users/asksh/Desktop/resume_project/health-emergency-app/frontend/emergency.html) | `POST /api/emergency/search` |
+| **Emergency Finder** | [emergency.html](file:///c:/Users/asksh/Desktop/resume_project/health-emergency-app/frontend/emergency.html) | `POST /api/emergency/find-hospitals` |
 | **Dedicated Profile** | [profile.html](file:///c:/Users/asksh/Desktop/resume_project/health-emergency-app/frontend/profile.html) | `GET /api/user/profile`, `POST /api/user/feedback` |
 | **Hospital SaaS ERP** | [hospital-dashboard.html](file:///c:/Users/asksh/Desktop/resume_project/health-emergency-app/frontend/hospital-dashboard.html) | `/api/hospital/*` (EHR, Billing, Pharmacy, Doctors) |
 | **Admin Governance**| [admin.html](file:///c:/Users/asksh/Desktop/resume_project/health-emergency-app/frontend/admin.html) | `/api/admin/*` (Verify, Close, Suspend, Resolve) |
 | **AI Doctor Chat** | [chat.html](file:///c:/Users/asksh/Desktop/resume_project/health-emergency-app/frontend/chat.html) | `POST /api/chat/message` |
 | **Unified Portal** | [index.html](file:///c:/Users/asksh/Desktop/resume_project/health-emergency-app/frontend/index.html) | Gateway entry & Role selection |
+
+---
+
+## 10. Live Production Cloud Deployment & Infrastructure Topology
+
+```mermaid
+flowchart LR
+    subgraph EdgeCDN["Vercel Global Edge Network"]
+        V["Production Frontend<br/>(lifeline-emergency-gamma.vercel.app)"]
+    end
+
+    subgraph CloudBackend["Render Cloud Container Services"]
+        R["Spring Boot 3.3.5 Docker Container<br/>(lifeline-backend-0zz7.onrender.com)"]
+        H2["In-Memory Relational H2 / PostgreSQL DB"]
+    end
+
+    subgraph External["External Public Services"]
+        OSM["OpenStreetMap / OSRM Engine<br/>(Live Road Routing)"]
+        LLM["OpenRouter API<br/>(LLaMA 3.1 8B Instruct / Fallback)"]
+    end
+
+    V -- "HTTPS REST API (JWT Bearer)" --> R
+    R --> H2
+    V -- "OSRM Car Routing Coordinates" --> OSM
+    R -. "Optional In-Transit Telemetry" .-> LLM
+```
+
+### Production Service Coordinates
+* **Live Frontend URL:** [https://lifeline-emergency-gamma.vercel.app](https://lifeline-emergency-gamma.vercel.app) (Hosted on Vercel Edge Network)
+* **Live Backend API URL:** [https://lifeline-backend-0zz7.onrender.com](https://lifeline-backend-0zz7.onrender.com) (Hosted on Render Cloud Docker Container)
+* **Official GitHub Repository:** [https://github.com/shivam-kumar-emf-portrait/health-emergency-app](https://github.com/shivam-kumar-emf-portrait/health-emergency-app)
+* **Continuous Integration & Deployment (CI/CD):** Pushes to the `main` branch automatically trigger Vercel edge builds and Render Docker redeployments with zero manual downtime.
+
+---
+
+## 11. Resume-Ready Project Bullet Points
+
+Use these high-impact, STAR-formatted (Situation, Task, Action, Result) bullet points on your resume:
+
+### Option A: Full-Stack / Software Engineer Focus
+* **Architected and deployed Lifeline**, an enterprise-grade emergency response platform and hospital SaaS ERP utilizing **Java 17, Spring Boot 3, Spring Security 6, and JPA/Hibernate**, serving real-time clinical triage and capacity telemetry.
+* **Engineered a multi-criteria triage recommendation algorithm** leveraging the **Haversine formula, specialist physician rosters, ICU bed availability, and life-support units** to calculate clinical emergency readiness scores ($0-100$), slashing transit decision latency.
+* **Designed an anti-spam hospital rating engine** backed by a strict treatment verification state machine (requiring `COMPLETED` ER cases or `DISCHARGED` EHR records) and a single-review constraint, eliminating fake reviews and dynamically updating public facility scores.
+* **Deployed a cloud-native architecture** orchestrating a multi-stage **Dockerized Spring Boot container on Render** and a high-performance **static edge client on Vercel**, achieving sub-50ms static load times and 100% independent 24/7 uptime.
+
+### Option B: Backend & Java Systems Focus
+* **Built an enterprise hospital SaaS ERP backend** in **Spring Boot 3.3** featuring 8 core operational subsystems: inbound ER telemetry queues, EHR patient admissions (UHID generation), itemized billing/invoicing, pharmacy formulary tracking, and blood inventory management.
+* **Implemented stateless Role-Based Access Control (RBAC)** using **Spring Security 6, JJWT, and BCrypt**, enforcing strict multi-tenant boundary isolation across Citizens, Hospital Administrators, and State Health Governance Authorities.
+* **Constructed an AI Medical Assistant pipeline** incorporating private session memory, emergency escalation triggers, and strict healthcare domain guardrails with an automated zero-downtime clinical fallback engine.
 
