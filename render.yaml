@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: lifeline-health-emergency
+    env: docker
+    plan: free
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: OPENROUTER_API_KEY
+        sync: false
