@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital SaaS ERP | Lifeline Enterprise</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/hospital.css">
+  <style>
+    /* SaaS Invoice & Receipt Styles */
+    .invoice-receipt-card {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 680px;
+      margin: 0 auto;
+      color: var(--text-main);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+    .receipt-header {
+      border-bottom: 2px solid var(--border-subtle);
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .receipt-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.88rem;
+    }
+    .receipt-table th {
+      background: #f8fafc;
+      color: var(--charcoal-deep);
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .receipt-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-main);
+    }
+    .receipt-total-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 30px;
+      font-size: 0.95rem;
+      padding-top: 10px;
+    }
+    .stamp-badge {
+      display: inline-block;
+      border: 2px solid var(--mint-green);
+      color: var(--mint-green);
+      padding: 4px 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-radius: 6px;
+      transform: rotate(-5deg);
+    }
+    .stamp-pending {
+      border-color: #d97706;
+      color: #d97706;
+    }
+    .stamp-claim {
+      border-color: var(--teal-blue);
+      color: var(--teal-blue);
+    }
+    .tab-counter {
+      background: var(--bg-hover);
+      color: var(--charcoal);
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.72rem;
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-root">
+    <!-- Sidebar -->
+    <aside class="erp-sidebar">
+      <div>
+        <div class="erp-brand">
+          <span class="brand-dot brand-dot-mint"></span>
+          <span style="font-weight: 800; color: var(--charcoal-deep);">Lifeline</span>
+          <span style="font-weight: 700; color: var(--mint-green); margin-left: 6px;">SaaS ERP</span>
+        </div>
+
+        <nav class="erp-menu-list">
+          <button class="erp-nav-btn active" onclick="switchNavSection('overview', this)">
+            Overview
+          </button>
+          <button class="erp-nav-btn" onclick="switchNavSection('emergencies', this)">
+            Emergency Alerts <span class="tab-counter" id="alertCountBadge">2</span>
+          </button>
+          <button class="erp-nav-btn" onclick="switchNavSection('patients', this)">
+            Patient Admissions (EHR)
+          </button>
+          <button class="erp-nav-btn" onclick="switchNavSection('billing', this)">
+            Billing &amp; Invoices
+          </button>
+          <button class="erp-nav-btn" onclick="switchNavSection('attendance', this)">
+            Staff Attendance
+          </button>
+          <button class="erp-nav-btn" onclick="switchNavSection('pharmacy', this)">
+            Emergency Pharmacy
+          </button>
+          <button class="erp-nav-btn" onclick="switchNavSection('doctors', this)">
+            Doctor Roster
+          </button>
+          <button class="erp-nav-btn" onclick="switchNavSection('beds', this)">
+            Bed &amp; ICU Capacity
+          </button>
+          <button class="erp-nav-btn" onclick="switchNavSection('blood', this)">
+            Blood Bank
+          </button>
+          <button class="erp-nav-btn" onclick="switchNavSection('equipment', this)">
+            Equipment Tracker
+          </button>
+        </nav>
+      </div>
+
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 14px;">
+        <a href="index.html" class="btn btn-subtle" style="width: 100%; font-size: 0.8rem; margin-bottom: 8px; text-align: center; text-decoration: none; display: block;">
+          Home
+        </a>
+        <button onclick="handleHospitalLogout()" class="btn btn-subtle" style="width: 100%; font-size: 0.8rem; color: var(--desert-light);">
+          Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="erp-main-area">
+      <!-- Topbar -->
+      <header class="erp-topbar">
+        <div>
+          <h1 style="font-size: 1.35rem; font-weight: 800;" id="erpSectionTitle">Overview</h1>
+          <span style="font-size: 0.82rem; color: var(--text-muted);" id="hospitalNameDisplay">Loading Hospital Profile...</span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="text-align: right;">
+            <span id="hospitalOpenBadge" class="status-badge-open">
+              OPERATIONAL • OPEN FOR INTAKE
+            </span>
+            <div id="hospitalOpenNotice" style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">
+              Visible to citizens in Emergency Matcher
+            </div>
+          </div>
+          <button id="toggleOpenBtn" class="btn btn-subtle" onclick="toggleHospitalOpenStatus()" style="font-size: 0.8rem; padding: 7px 14px; color: #dc2626;">
+            Close Intake (Diversion)
+          </button>
+        </div>
+      </header>
+
+      <!-- Content Container -->
+      <div class="erp-content-container" id="erpMainContainer">
+        <!-- Dynamically rendered -->
+      </div>
+    </main>
+  </div>
+
+  <!-- MODALS -->
+
+  <!-- 1. Add Doctor Modal -->
+  <div class="modal-overlay" id="addDoctorModal">
+    <div class="modal-content-box" style="max-width: 480px;">
+      <button class="modal-close-btn" onclick="closeDoctorModal()">&times;</button>
+      <h2 style="font-size: 1.3rem; margin-bottom: 14px;">Add Doctor to Hospital Roster</h2>
+      <form onsubmit="handleSaveDoctor(event)">
+        <div style="margin-bottom: 12px;">
+          <label style="display:block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">Doctor Name</label>
+          <input type="text" id="newDocName" required placeholder="Dr. Sarah Jenkins" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="display:block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">Specialization</label>
+          <select id="newDocSpec" required style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+            <option value="CARDIOLOGY">Cardiologist (Heart Specialist)</option>
+            <option value="NEUROLOGY">Neurologist (Brain &amp; Stroke)</option>
+            <option value="TRAUMA_SURGERY">Trauma Surgeon</option>
+            <option value="ORTHOPEDICS">Orthopedic Surgeon</option>
+            <option value="PULMONOLOGY">Pulmonologist (Chest &amp; Lungs)</option>
+            <option value="PEDIATRICS">Pediatrician</option>
+            <option value="GYNECOLOGY">Obstetrician / Gynecologist</option>
+            <option value="GENERAL_EMERGENCY">Emergency Medicine Physician</option>
+            <option value="ANESTHESIOLOGY">Critical Care / Anesthesiologist</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="display:block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">Qualification</label>
+          <input type="text" id="newDocQual" placeholder="MD, DM Cardiology, FACC" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <label style="display:block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">Years of Experience</label>
+          <input type="number" id="newDocExp" value="8" min="0" max="60" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+        </div>
+
+        <button type="submit" class="btn btn-mint" style="width: 100%;">Save to Roster</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Admit Patient Modal -->
+  <div class="modal-overlay" id="admitPatientModal">
+    <div class="modal-content-box" style="max-width: 540px;">
+      <button class="modal-close-btn" onclick="closeAdmitModal()">&times;</button>
+      <h2 style="font-size: 1.3rem; margin-bottom: 14px;">Admit Patient to Inpatient / ER Ward</h2>
+      <form onsubmit="handleAdmitPatient(event)">
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Patient Full Name</label>
+            <input type="text" id="admitName" required placeholder="Subrata Das" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+          </div>
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Age</label>
+            <input type="number" id="admitAge" required value="48" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Gender</label>
+            <select id="admitGender" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Blood Group</label>
+            <select id="admitBlood" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Ward Type</label>
+            <select id="admitStatus" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+              <option value="ICU">ICU (Critical)</option>
+              <option value="ADMITTED">General Ward</option>
+              <option value="OBSERVATION">ER Observation</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Contact Phone</label>
+          <input type="text" id="admitPhone" placeholder="+91 98300 00000" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Primary Diagnosis / Chief Complaint</label>
+          <input type="text" id="admitDiagnosis" required placeholder="Acute Coronary Syndrome / Femur Fracture" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Assigned Bed</label>
+            <input type="text" id="admitBed" placeholder="ICU-BAY-04 / WARD-08" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+          </div>
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Assigned Doctor</label>
+            <select id="admitDoctorSelect" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-mint" style="width: 100%;">Confirm Admission &amp; Allocate Bed</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Create Bill Modal -->
+  <div class="modal-overlay" id="createBillModal">
+    <div class="modal-content-box" style="max-width: 600px;">
+      <button class="modal-close-btn" onclick="closeBillModal()">&times;</button>
+      <h2 style="font-size: 1.3rem; margin-bottom: 14px;">Generate Patient Invoice</h2>
+      <form onsubmit="handleSaveBill(event)">
+        <div style="margin-bottom: 12px;">
+          <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Select Admitted Patient</label>
+          <select id="billPatientSelect" required style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Payment Status</label>
+            <select id="billPayStatus" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+              <option value="PAID">PAID</option>
+              <option value="PENDING" selected>PENDING</option>
+              <option value="INSURANCE_CLAIM">INSURANCE CLAIM</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Payment Method</label>
+            <select id="billPayMethod" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+              <option value="CASH">CASH</option>
+              <option value="CARD">CARD</option>
+              <option value="UPI">UPI</option>
+              <option value="INSURANCE">INSURANCE / TPA</option>
+            </select>
+          </div>
+        </div>
+
+        <label style="font-size:0.85rem; font-weight:700; color:var(--teal-light); display:block; margin-bottom:6px;">Itemized Charges Breakdown:</label>
+        <div id="billItemsContainer" style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;">
+          <!-- Default Row -->
+          <div class="bill-item-row" style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:8px;">
+            <input type="text" placeholder="Description (e.g. ICU Care)" value="ICU Ward &amp; Telemetry (2 Days)" class="item-desc" required style="padding:8px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-main); font-size:0.85rem;">
+            <input type="number" placeholder="Qty" value="2" class="item-qty" min="1" required style="padding:8px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-main); font-size:0.85rem;">
+            <input type="number" placeholder="Rate (₹)" value="12000" class="item-rate" required style="padding:8px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-main); font-size:0.85rem;">
+          </div>
+          <div class="bill-item-row" style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:8px;">
+            <input type="text" placeholder="Description" value="Emergency Doctor &amp; Nursing Care" class="item-desc" required style="padding:8px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-main); font-size:0.85rem;">
+            <input type="number" placeholder="Qty" value="1" class="item-qty" min="1" required style="padding:8px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-main); font-size:0.85rem;">
+            <input type="number" placeholder="Rate (₹)" value="5000" class="item-rate" required style="padding:8px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-main); font-size:0.85rem;">
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-subtle" onclick="addBillItemRow()" style="font-size:0.8rem; padding:4px 10px; margin-bottom:14px;">+ Add Line Item</button>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Discount (₹)</label>
+            <input type="number" id="billDiscount" value="1000" style="width:100%; padding:8px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+          </div>
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">GST / Tax (5% auto if 0)</label>
+            <input type="number" id="billTax" value="0" style="width:100%; padding:8px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-mint" style="width: 100%;">Create Invoice &amp; Print Receipt</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Invoice Receipt Print Modal -->
+  <div class="modal-overlay" id="receiptModalOverlay">
+    <div style="max-width: 720px; width: 95%; background: transparent; position: relative;">
+      <button class="modal-close-btn" onclick="closeReceiptModal()" style="right: 10px; top: 10px; z-index: 10;">&times;</button>
+      <div id="receiptContentContainer"></div>
+    </div>
+  </div>
+
+  <!-- 5. Log Attendance Modal -->
+  <div class="modal-overlay" id="logAttendanceModal">
+    <div class="modal-content-box" style="max-width: 480px;">
+      <button class="modal-close-btn" onclick="closeAttendanceModal()">&times;</button>
+      <h2 style="font-size: 1.3rem; margin-bottom: 14px;">Record Staff Attendance Check-In</h2>
+      <form onsubmit="handleSaveAttendance(event)">
+        <div style="margin-bottom: 12px;">
+          <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Employee Full Name</label>
+          <input type="text" id="attName" required placeholder="Dr. Arvind Mehta / Sister Anjali" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Role / Designation</label>
+          <select id="attRole" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+            <option value="CARDIOLOGIST">Cardiologist</option>
+            <option value="TRAUMA_SURGEON">Trauma Surgeon</option>
+            <option value="EMERGENCY_PHYSICIAN">Emergency Physician</option>
+            <option value="HEAD_NURSE">Head Nurse (Critical Care)</option>
+            <option value="DUTY_NURSE">Staff / Duty Nurse</option>
+            <option value="PARAMEDIC">Emergency Paramedic</option>
+            <option value="PHARMACIST">Emergency Pharmacist</option>
+            <option value="RADIOLOGY_TECH">Radiology Technician</option>
+          </select>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom: 16px;">
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Shift</label>
+            <select id="attShift" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+              <option value="MORNING">MORNING (08:00 - 16:00)</option>
+              <option value="EVENING">EVENING (16:00 - 00:00)</option>
+              <option value="NIGHT">NIGHT (00:00 - 08:00)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Status</label>
+            <select id="attStatus" style="width:100%; padding:9px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+              <option value="ON_DUTY" selected>ON DUTY</option>
+              <option value="PRESENT">PRESENT</option>
+              <option value="ON_LEAVE">ON LEAVE</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-mint" style="width: 100%;">Record Attendance Check-In</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    let hospitalProfile = null;
+    let doctorsList = [];
+    let emergenciesList = [];
+    let patientsList = [];
+    let billsList = [];
+    let attendanceList = [];
+    let pharmacyList = [];
+    let currentNav = 'overview';
+
+    // Strict Role Guard: Only ROLE_HOSPITAL_ADMIN can access
+    if (!API.guardRoute(['ROLE_HOSPITAL_ADMIN'], 'login.html?tab=hospital')) {
+      throw new Error("Access Denied: Hospital Staff role required");
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadHospitalData();
+      renderActiveSection('overview');
+    });
+
+    async function loadHospitalData() {
+      try {
+        hospitalProfile = await API.getHospitalProfile();
+        document.getElementById('hospitalNameDisplay').innerText = `${hospitalProfile.name} • ${hospitalProfile.address || ''}`;
+        updateOpenStatusBadge(hospitalProfile.open);
+      } catch (err) {
+        console.warn("Using active session data:", err);
+      }
+    }
+
+    function updateOpenStatusBadge(isOpen) {
+      const badge = document.getElementById('hospitalOpenBadge');
+      const notice = document.getElementById('hospitalOpenNotice');
+      const btn = document.getElementById('toggleOpenBtn');
+      if (isOpen) {
+        badge.className = 'status-badge-open';
+        badge.innerText = 'OPERATIONAL • OPEN FOR INTAKE';
+        if (notice) notice.innerText = 'Visible to citizens in Emergency Matcher';
+        if (btn) {
+          btn.className = 'btn btn-subtle';
+          btn.innerText = 'Close Intake (Diversion)';
+          btn.style.color = '#dc2626';
+        }
+      } else {
+        badge.className = 'status-badge-closed';
+        badge.innerText = 'DIVERTING • CLOSED TO INTAKE';
+        if (notice) notice.innerText = 'Hidden from citizens — emergencies diverted elsewhere';
+        if (btn) {
+          btn.className = 'btn btn-mint';
+          btn.innerText = 'Re-Open Emergency Intake';
+          btn.style.color = '';
+        }
+      }
+    }
+
+    async function toggleHospitalOpenStatus() {
+      try {
+        const res = await API.toggleHospitalOpen();
+        hospitalProfile.open = res.isOpen;
+        updateOpenStatusBadge(res.isOpen);
+        if (currentNav === 'beds') {
+          renderActiveSection('beds');
+        }
+      } catch (err) {
+        alert("Failed to toggle hospital status: " + err.message);
+      }
+    }
+
+    function switchNavSection(sec, btn) {
+      currentNav = sec;
+      document.querySelectorAll('.erp-nav-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      const titles = {
+        overview: 'Hospital Operations Overview',
+        emergencies: 'Live Patient Emergency Alerts &amp; Pre-Arrivals',
+        patients: 'Inpatient Admissions &amp; Electronic Health Records (EHR)',
+        billing: 'Patient Invoicing &amp; Customer Bill History',
+        attendance: 'Staff Attendance &amp; Shift Management',
+        pharmacy: 'Critical Emergency Medicines Formulary',
+        doctors: 'Doctor Directory &amp; On-Duty Roster',
+        beds: 'Bed &amp; ICU Capacity Tracker',
+        blood: 'Blood Bank Inventory',
+        equipment: 'Equipment &amp; Life Support Tracker'
+      };
+      document.getElementById('erpSectionTitle').innerHTML = titles[sec] || 'Dashboard';
+      renderActiveSection(sec);
+    }
+
+    async function renderActiveSection(sec) {
+      const container = document.getElementById('erpMainContainer');
+
+      if (sec === 'overview') {
+        const [docRes, emergRes, patRes, billRes] = await Promise.all([
+          API.getHospitalDoctors(),
+          API.getHospitalEmergencies(),
+          API.getHospitalPatients(),
+          API.getHospitalBills()
+        ]);
+        doctorsList = docRes.doctors || [];
+        emergenciesList = emergRes.emergencies || [];
+        patientsList = patRes.patients || [];
+        billsList = billRes.bills || [];
+
+        const onDuty = doctorsList.filter(d => d.onDuty).length;
+        const activeAlerts = emergenciesList.filter(e => e.status === 'ACTIVE').length;
+        document.getElementById('alertCountBadge').innerText = activeAlerts;
+
+        const totalRevenue = billRes.totalRevenue || 0;
+
+        container.innerHTML = `
+          <div class="metrics-grid-4">
+            <div class="metric-box">
+              <span class="metric-label">Emergency Beds Free</span>
+              <span class="metric-val" style="color: var(--mint-light);">${hospitalProfile.availableBeds} / ${hospitalProfile.totalBeds}</span>
+              <span class="metric-note">General Ward Occupancy</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Available ICU Beds</span>
+              <span class="metric-val" style="color: var(--teal-light);">${hospitalProfile.availableICUBeds} / ${hospitalProfile.totalICUBeds}</span>
+              <span class="metric-note">Critical Care Units</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Doctors On Duty</span>
+              <span class="metric-val" style="color: var(--desert-light);">${onDuty} / ${doctorsList.length}</span>
+              <span class="metric-note">Ready for emergency triage</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Active Inbound Alerts</span>
+              <span class="metric-val" style="color: #f87171;">${activeAlerts}</span>
+              <span class="metric-note">Incoming ambulance &amp; transit</span>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+            <div class="erp-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <h3 style="font-size: 1.1rem;">Inbound Emergency Transit Stream</h3>
+                <span class="badge badge-desert">${activeAlerts} Urgencies</span>
+              </div>
+              ${renderEmergencyTable(emergenciesList.slice(0, 4))}
+            </div>
+
+            <div class="erp-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <h3 style="font-size: 1.1rem;">Financial Revenue Overview</h3>
+                <span class="badge badge-mint">Paid Total</span>
+              </div>
+              <div style="font-size: 1.8rem; font-weight: 800; color: var(--mint-light); margin-bottom: 6px;">
+                ₹ ${totalRevenue.toLocaleString('en-IN')}
+              </div>
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">Across ${billsList.length} generated invoices</p>
+              <button class="btn btn-teal" style="width: 100%; font-size: 0.85rem;" onclick="switchNavSection('billing', document.querySelectorAll('.erp-nav-btn')[3])">
+                Manage Invoices &amp; Bills &rarr;
+              </button>
+            </div>
+          </div>
+        `;
+      } else if (sec === 'emergencies') {
+        const emergRes = await API.getHospitalEmergencies();
+        emergenciesList = emergRes.emergencies || [];
+        document.getElementById('alertCountBadge').innerText = emergenciesList.filter(e => e.status === 'ACTIVE').length;
+
+        container.innerHTML = `
+          <div class="erp-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+              <div>
+                <h3 style="font-size: 1.15rem;">Live Emergency Stream &amp; Inbound Pre-Arrivals</h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">Real-time alerts sent by citizen emergency notifications with symptoms and ETA</p>
+              </div>
+              <button class="btn btn-subtle" onclick="renderActiveSection('emergencies')" style="font-size:0.8rem; padding:6px 12px;">↻ Refresh Stream</button>
+            </div>
+            ${renderEmergencyTable(emergenciesList)}
+          </div>
+        `;
+      } else if (sec === 'patients') {
+        const patRes = await API.getHospitalPatients();
+        patientsList = patRes.patients || [];
+
+        container.innerHTML = `
+          <div class="erp-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+              <div>
+                <h3 style="font-size: 1.15rem;">Electronic Health Records (EHR) &amp; Inpatient Admissions</h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">Active admitted patients, bed occupancy, and diagnostic charts</p>
+              </div>
+              <button class="btn btn-mint" onclick="openAdmitModal()">+ Admit New Patient</button>
+            </div>
+
+            <table class="erp-table">
+              <thead>
+                <tr>
+                  <th>UHID</th>
+                  <th>Patient Name</th>
+                  <th>Age/Gender</th>
+                  <th>Ward &amp; Bed</th>
+                  <th>Diagnosis</th>
+                  <th>Doctor</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${patientsList.length === 0 ? '<tr><td colspan="8" style="text-align:center; color:var(--text-muted);">No active patients currently admitted.</td></tr>' :
+                  patientsList.map(p => `
+                    <tr>
+                      <td><strong style="color:var(--teal-light); font-family:monospace;">${p.uhid}</strong></td>
+                      <td>
+                        <strong>${p.fullName}</strong><br>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Ph: ${p.phone || 'N/A'}</span>
+                      </td>
+                      <td>${p.age}y / ${p.gender}</td>
+                      <td><span class="badge ${p.admissionStatus === 'ICU' ? 'badge-desert' : 'badge-teal'}">${p.assignedBedNumber || 'TBD'}</span></td>
+                      <td style="max-width: 200px; font-size: 0.82rem;">${p.primaryDiagnosis}</td>
+                      <td>${p.assignedDoctor ? p.assignedDoctor.name : '<span style="color:var(--text-dim);">Unassigned</span>'}</td>
+                      <td>
+                        <span class="badge ${p.admissionStatus === 'ICU' ? 'badge-desert' : (p.admissionStatus === 'DISCHARGED' ? 'badge-mint' : 'badge-teal')}">
+                          ${p.admissionStatus}
+                        </span>
+                      </td>
+                      <td>
+                        ${p.admissionStatus !== 'DISCHARGED' ? `
+                          <div style="display:flex; gap:6px;">
+                            ${p.admissionStatus !== 'ICU' ? `
+                              <button class="btn btn-subtle" style="padding:3px 8px; font-size:0.75rem; color:var(--desert-light);" onclick="handleUpdatePatientStatus(${p.id}, 'ICU', '${p.assignedBedNumber}')">Move ICU</button>
+                            ` : ''}
+                            <button class="btn btn-subtle" style="padding:3px 8px; font-size:0.75rem; color:var(--mint-light);" onclick="handleDischargePatient(${p.id})">Discharge</button>
+                          </div>
+                        ` : '<span style="font-size:0.8rem; color:var(--text-muted);">Discharged</span>'}
+                      </td>
+                    </tr>
+                  `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else if (sec === 'billing') {
+        const billRes = await API.getHospitalBills();
+        billsList = billRes.bills || [];
+
+        container.innerHTML = `
+          <div class="erp-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+              <div>
+                <h3 style="font-size: 1.15rem;">Patient Billing, Invoices &amp; Accounts History</h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">Itemized hospital invoices, insurance claims, and instant printable receipts</p>
+              </div>
+              <button class="btn btn-mint" onclick="openCreateBillModal()">+ Create New Invoice</button>
+            </div>
+
+            <table class="erp-table">
+              <thead>
+                <tr>
+                  <th>Invoice #</th>
+                  <th>Date</th>
+                  <th>Patient Name &amp; UHID</th>
+                  <th>Grand Total</th>
+                  <th>Method</th>
+                  <th>Payment Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${billsList.length === 0 ? '<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No invoices generated yet.</td></tr>' :
+                  billsList.map(b => `
+                    <tr>
+                      <td><strong style="color:var(--mint-light); font-family:monospace;">${b.invoiceNumber}</strong></td>
+                      <td>${new Date(b.createdAt).toLocaleDateString()}</td>
+                      <td>
+                        <strong>${b.patient ? b.patient.fullName : 'Patient'}</strong><br>
+                        <span style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">${b.patient ? b.patient.uhid : ''}</span>
+                      </td>
+                      <td><strong style="font-size:1rem; color:var(--charcoal-deep);">₹ ${b.grandTotal.toLocaleString('en-IN')}</strong></td>
+                      <td><span class="badge badge-teal">${b.paymentMethod}</span></td>
+                      <td>
+                        <span class="badge ${b.paymentStatus === 'PAID' ? 'badge-mint' : (b.paymentStatus === 'PENDING' ? 'badge-desert' : 'badge-teal')}">
+                          ${b.paymentStatus}
+                        </span>
+                      </td>
+                      <td>
+                        <div style="display:flex; gap:6px;">
+                          <button class="btn btn-subtle" style="padding:4px 9px; font-size:0.75rem; color:var(--teal-light);" onclick="viewInvoiceReceipt(${b.id})">
+                            View Receipt
+                          </button>
+                          ${b.paymentStatus !== 'PAID' ? `
+                            <button class="btn btn-mint" style="padding:4px 9px; font-size:0.75rem;" onclick="handleMarkBillPaid(${b.id})">
+                              Mark Paid
+                            </button>
+                          ` : ''}
+                        </div>
+                      </td>
+                    </tr>
+                  `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else if (sec === 'attendance') {
+        const attRes = await API.getStaffAttendance();
+        attendanceList = attRes.records || [];
+
+        container.innerHTML = `
+          <div class="erp-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+              <div>
+                <h3 style="font-size: 1.15rem;">Staff Daily Attendance &amp; Shift Roster</h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">Doctors, critical care nurses, paramedics, and technicians logged on duty today</p>
+              </div>
+              <button class="btn btn-mint" onclick="openAttendanceModal()">+ Clock-in Staff</button>
+            </div>
+
+            <table class="erp-table">
+              <thead>
+                <tr>
+                  <th>Employee Name</th>
+                  <th>Designation / Role</th>
+                  <th>Shift</th>
+                  <th>Check-In Time</th>
+                  <th>Check-Out Time</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${attendanceList.length === 0 ? '<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No attendance records logged for today.</td></tr>' :
+                  attendanceList.map(a => `
+                    <tr>
+                      <td><strong>${a.employeeName}</strong></td>
+                      <td><span class="badge badge-teal">${a.employeeRole}</span></td>
+                      <td><span class="badge badge-desert">${a.shift}</span></td>
+                      <td>${a.checkInTime ? a.checkInTime.substring(0, 5) : '--:--'}</td>
+                      <td>${a.checkOutTime ? a.checkOutTime.substring(0, 5) : '<span style="color:var(--mint-light);">Active</span>'}</td>
+                      <td>
+                        <span class="badge ${a.status === 'ON_DUTY' ? 'badge-mint' : (a.status === 'PRESENT' ? 'badge-teal' : 'badge-desert')}">
+                          ${a.status}
+                        </span>
+                      </td>
+                      <td>
+                        ${!a.checkOutTime ? `
+                          <button class="btn btn-subtle" style="padding:4px 8px; font-size:0.75rem; color:#f87171;" onclick="handleCheckOutStaff(${a.id})">Clock Out</button>
+                        ` : '<span style="font-size:0.8rem; color:var(--text-muted);">Completed</span>'}
+                      </td>
+                    </tr>
+                  `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else if (sec === 'pharmacy') {
+        const pharmRes = await API.getPharmacyMedicines();
+        pharmacyList = pharmRes.medicines || [];
+
+        container.innerHTML = `
+          <div class="erp-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+              <div>
+                <h3 style="font-size: 1.15rem;">Emergency Pharmacy Formulary &amp; Life-Saving Stocks</h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">Real-time inventory of resuscitation, cardiovascular, and surgical emergency drugs</p>
+              </div>
+              <span class="badge badge-desert">${pharmRes.lowStockCount || 0} Low Stock Alerts</span>
+            </div>
+
+            <table class="erp-table">
+              <thead>
+                <tr>
+                  <th>Medicine Name</th>
+                  <th>Therapeutic Category</th>
+                  <th>Units in Stock</th>
+                  <th>Threshold</th>
+                  <th>Status</th>
+                  <th>Stock Adjustment</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${pharmacyList.length === 0 ? '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No medicines registered in formulary.</td></tr>' :
+                  pharmacyList.map(m => {
+                    const isLow = m.unitsInStock <= m.lowStockThreshold;
+                    return `
+                      <tr>
+                        <td><strong>${m.medicineName}</strong></td>
+                        <td><span class="badge badge-teal">${m.category}</span></td>
+                        <td><strong style="font-size:1.1rem; color:${isLow ? '#f87171' : 'var(--mint-light)'}">${m.unitsInStock}</strong> <span style="font-size:0.78rem; color:var(--text-muted);">${m.unitType}</span></td>
+                        <td>${m.lowStockThreshold} ${m.unitType}</td>
+                        <td>
+                          <span class="badge ${isLow ? 'badge-desert' : 'badge-mint'}">
+                            ${isLow ? 'LOW STOCK' : 'OPTIMAL'}
+                          </span>
+                        </td>
+                        <td>
+                          <div style="display:flex; gap:6px;">
+                            <button class="btn btn-subtle" style="padding:2px 10px;" onclick="adjustMedicineStock(${m.id}, ${m.unitsInStock - 10})">-10</button>
+                            <button class="btn btn-mint" style="padding:2px 10px;" onclick="adjustMedicineStock(${m.id}, ${m.unitsInStock + 25})">+25 Restock</button>
+                          </div>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else if (sec === 'doctors') {
+        const docRes = await API.getHospitalDoctors();
+        doctorsList = docRes.doctors || [];
+
+        container.innerHTML = `
+          <div class="erp-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+              <div>
+                <h3 style="font-size: 1.15rem;">Doctor Directory &amp; On-Duty Toggles</h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">On-duty doctors are directly factored into the citizen Emergency Matcher algorithm</p>
+              </div>
+              <button class="btn btn-mint" onclick="openDoctorModal()">+ Add Doctor</button>
+            </div>
+            <table class="erp-table">
+              <thead>
+                <tr>
+                  <th>Doctor Name</th>
+                  <th>Specialization</th>
+                  <th>Qualification</th>
+                  <th>Experience</th>
+                  <th>On-Duty Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${doctorsList.map(d => `
+                  <tr>
+                    <td><strong>${d.name}</strong></td>
+                    <td><span class="badge badge-teal">${d.specializationDescription || d.specialization}</span></td>
+                    <td>${d.qualification || 'MBBS'}</td>
+                    <td>${d.experienceYears} Years</td>
+                    <td>
+                      <label class="switch">
+                        <input type="checkbox" ${d.onDuty ? 'checked' : ''} onchange="handleToggleDoctorDuty(${d.id})">
+                        <span class="slider"></span>
+                      </label>
+                      <span style="font-size: 0.8rem; margin-left: 8px; color: ${d.onDuty ? 'var(--mint-light)' : 'var(--text-muted)'}">
+                        ${d.onDuty ? 'ON DUTY' : 'OFF DUTY'}
+                      </span>
+                    </td>
+                    <td>
+                      <button class="btn btn-subtle" style="padding:4px 8px; font-size:0.75rem; color:#f87171;" onclick="handleDeleteDoctor(${d.id})">Delete</button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else if (sec === 'beds') {
+        container.innerHTML = `
+          <div class="erp-card" style="max-width: 600px; margin-bottom: 18px; border-left: 4px solid ${hospitalProfile.open ? 'var(--mint-green)' : 'var(--desert-sun)'};">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+              <div>
+                <h4 style="font-size:1rem; font-weight:700; color:var(--charcoal-deep); margin-bottom:4px;">Emergency Intake &amp; Diversion Status</h4>
+                <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">
+                  ${hospitalProfile.open ? 'Currently accepting emergency transfers and visible in citizen matcher.' : 'Currently in diversion mode — hidden from citizen emergency searches.'}
+                </p>
+              </div>
+              <button type="button" class="btn ${hospitalProfile.open ? 'btn-subtle' : 'btn-mint'}" onclick="toggleHospitalOpenStatus()" style="font-size:0.82rem; padding:6px 14px;">
+                ${hospitalProfile.open ? 'Switch to Closed / Diversion' : 'Re-Open for Intake'}
+              </button>
+            </div>
+          </div>
+
+          <div class="erp-card" style="max-width: 600px;">
+            <h3 style="margin-bottom: 18px; font-size: 1.15rem;">Bed &amp; ICU Capacity Tracker</h3>
+            <form onsubmit="handleSaveBeds(event)">
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Total Emergency Beds</label>
+                  <input type="number" id="inpBedTotal" value="${hospitalProfile.totalBeds}" style="width:100%; padding:10px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+                </div>
+                <div>
+                  <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Available Free Beds</label>
+                  <input type="number" id="inpBedAvail" value="${hospitalProfile.availableBeds}" style="width:100%; padding:10px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+                </div>
+              </div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px;">
+                <div>
+                  <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Total ICU Beds</label>
+                  <input type="number" id="inpIcuTotal" value="${hospitalProfile.totalICUBeds}" style="width:100%; padding:10px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+                </div>
+                <div>
+                  <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Available ICU Beds</label>
+                  <input type="number" id="inpIcuAvail" value="${hospitalProfile.availableICUBeds}" style="width:100%; padding:10px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-mint" style="width: 100%;">Save Bed Capacity Changes</button>
+            </form>
+          </div>
+        `;
+      } else if (sec === 'blood') {
+        const blood = hospitalProfile.bloodInventory || {};
+        container.innerHTML = `
+          <div class="erp-card" style="max-width: 680px;">
+            <h3 style="margin-bottom: 16px; font-size: 1.15rem;">Blood Bank Units Inventory</h3>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 20px;">
+              ${['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'].map(type => `
+                <div style="background:#f8fafc; border:1px solid var(--border-subtle); border-radius:10px; padding:12px; text-align:center;">
+                  <span class="badge badge-desert" style="font-size:0.85rem;">${type}</span>
+                  <div style="font-size:1.6rem; font-weight:800; margin: 6px 0;" id="bVal_${type}">${blood[type] || 0}</div>
+                  <div style="display:flex; gap:6px; justify-content:center;">
+                    <button class="btn btn-subtle" style="padding:2px 10px;" onclick="adjustBloodVal('${type}', -1)">-</button>
+                    <button class="btn btn-subtle" style="padding:2px 10px;" onclick="adjustBloodVal('${type}', 1)">+</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <button class="btn btn-mint" onclick="handleSaveBlood()" style="width: 100%;">Save Blood Inventory</button>
+          </div>
+        `;
+      } else if (sec === 'equipment') {
+        container.innerHTML = `
+          <div class="erp-card" style="max-width: 600px;">
+            <h3 style="margin-bottom: 18px; font-size: 1.15rem;">Equipment &amp; Life Support Tracker</h3>
+            <form onsubmit="handleSaveEquipment(event)">
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Ventilators (Units)</label>
+                  <input type="number" id="inpVent" value="${hospitalProfile.ventilators || 0}" style="width:100%; padding:10px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+                </div>
+                <div>
+                  <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Oxygen Cylinders</label>
+                  <input type="number" id="inpOxy" value="${hospitalProfile.oxygenCylinders || 0}" style="width:100%; padding:10px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+                </div>
+              </div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px;">
+                <div>
+                  <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Ambulances on Standby</label>
+                  <input type="number" id="inpAmb" value="${hospitalProfile.ambulances || 0}" style="width:100%; padding:10px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+                </div>
+                <div>
+                  <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Cardiac Monitors</label>
+                  <input type="number" id="inpCard" value="${hospitalProfile.cardiacMonitors || 0}" style="width:100%; padding:10px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main);">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-mint" style="width: 100%;">Save Equipment Counts</button>
+            </form>
+          </div>
+        `;
+      }
+    }
+
+    // ==========================================
+    // EMERGENCY TABLE RENDERER
+    // ==========================================
+    function renderEmergencyTable(list) {
+      if (!list || list.length === 0) {
+        return '<p style="color:var(--text-muted); padding: 14px 0;">No incoming patient emergency alerts on record.</p>';
+      }
+
+      return `
+        <table class="erp-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Patient &amp; Contact</th>
+              <th>Emergency Type</th>
+              <th>Severity</th>
+              <th>Notes / SBAR</th>
+              <th>Assigned Doctor</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map(e => `
+              <tr>
+                <td>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                <td>
+                  <strong>${e.patientName}</strong><br>
+                  <a href="tel:${(e.patientPhone || '').replace(/\s+/g,'')}" style="font-size:0.78rem; color:var(--teal-light); text-decoration:none;">
+                    Ph: ${e.patientPhone}
+                  </a>
+                </td>
+                <td><span class="badge badge-desert">${e.emergencyType}</span></td>
+                <td><span class="badge badge-teal">${e.severity}</span></td>
+                <td style="max-width:220px; font-size:0.8rem; color:var(--text-muted);">${e.notes || 'In-transit transit pre-alert'}</td>
+                <td>${e.assignedDoctor ? e.assignedDoctor.name : '<span style="color:var(--text-dim);">Unassigned</span>'}</td>
+                <td>
+                  <span class="badge ${e.status === 'ACTIVE' ? 'badge-desert' : (e.status === 'IN_PROGRESS' ? 'badge-teal' : 'badge-mint')}">
+                    ${e.status}
+                  </span>
+                </td>
+                <td>
+                  ${e.status === 'ACTIVE' ? `
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                      <button class="btn btn-mint" style="padding:4px 8px; font-size:0.75rem;" onclick="handleUpdateCaseStatus(${e.id}, 'IN_PROGRESS')">Accept &amp; Prep Bay</button>
+                      <a href="tel:${(e.patientPhone || '').replace(/\s+/g,'')}" class="btn btn-subtle" style="padding:4px 8px; font-size:0.75rem; color:var(--teal-light); text-align:center;">Call Patient</a>
+                    </div>
+                  ` : (e.status === 'IN_PROGRESS' ? `
+                    <button class="btn btn-subtle" style="padding:4px 10px; font-size:0.75rem; color:var(--mint-light);" onclick="handleUpdateCaseStatus(${e.id}, 'COMPLETED')">Mark Resolved</button>
+                  ` : '<span>Completed</span>')}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    // ==========================================
+    // ACTION HANDLERS
+    // ==========================================
+    async function handleUpdateCaseStatus(id, newStatus) {
+      try {
+        await API.updateEmergencyStatus(id, newStatus);
+        renderActiveSection(currentNav);
+      } catch (err) {
+        alert("Failed to update status: " + err.message);
+      }
+    }
+
+    async function handleToggleDoctorDuty(docId) {
+      try {
+        await API.toggleDoctorDuty(docId);
+      } catch (err) {
+        alert("Failed to toggle doctor duty: " + err.message);
+      }
+    }
+
+    async function handleDeleteDoctor(docId) {
+      if (!confirm("Are you sure you want to remove this doctor from the roster?")) return;
+      try {
+        await API.deleteDoctor(docId);
+        renderActiveSection('doctors');
+      } catch (err) {
+        alert("Failed to remove doctor: " + err.message);
+      }
+    }
+
+    // Modal Triggers
+    function openDoctorModal() { document.getElementById('addDoctorModal').style.display = 'flex'; }
+    function closeDoctorModal() { document.getElementById('addDoctorModal').style.display = 'none'; }
+
+    async function handleSaveDoctor(e) {
+      e.preventDefault();
+      try {
+        await API.addDoctor({
+          name: document.getElementById('newDocName').value,
+          specialization: document.getElementById('newDocSpec').value,
+          qualification: document.getElementById('newDocQual').value,
+          experienceYears: parseInt(document.getElementById('newDocExp').value) || 0,
+          onDuty: true,
+          publicProfile: true
+        });
+        closeDoctorModal();
+        renderActiveSection('doctors');
+      } catch (err) {
+        alert("Error adding doctor: " + err.message);
+      }
+    }
+
+    // Patient Admissions
+    async function openAdmitModal() {
+      const select = document.getElementById('admitDoctorSelect');
+      const docRes = await API.getHospitalDoctors();
+      const docs = docRes.doctors || [];
+      select.innerHTML = '<option value="">-- No Assigned Doctor --</option>' +
+        docs.map(d => `<option value="${d.id}">${d.name} (${d.specialization})</option>`).join('');
+      document.getElementById('admitPatientModal').style.display = 'flex';
+    }
+    function closeAdmitModal() { document.getElementById('admitPatientModal').style.display = 'none'; }
+
+    async function handleAdmitPatient(e) {
+      e.preventDefault();
+      try {
+        const docIdVal = document.getElementById('admitDoctorSelect').value;
+        const res = await API.admitPatient({
+          fullName: document.getElementById('admitName').value,
+          age: parseInt(document.getElementById('admitAge').value),
+          gender: document.getElementById('admitGender').value,
+          bloodGroup: document.getElementById('admitBlood').value,
+          phone: document.getElementById('admitPhone').value,
+          admissionStatus: document.getElementById('admitStatus').value,
+          primaryDiagnosis: document.getElementById('admitDiagnosis').value,
+          assignedBedNumber: document.getElementById('admitBed').value,
+          assignedDoctorId: docIdVal ? parseInt(docIdVal) : null
+        });
+        alert(res.message);
+        closeAdmitModal();
+        renderActiveSection('patients');
+      } catch (err) {
+        alert("Admission error: " + err.message);
+      }
+    }
+
+    async function handleUpdatePatientStatus(id, newStatus, bedNumber) {
+      try {
+        await API.updatePatientStatus(id, newStatus, bedNumber);
+        renderActiveSection('patients');
+      } catch (err) {
+        alert("Status update failed: " + err.message);
+      }
+    }
+
+    async function handleDischargePatient(id) {
+      if (!confirm("Confirm discharge for this patient? Their bed will be freed for emergency capacity.")) return;
+      try {
+        await API.dischargePatient(id);
+        renderActiveSection('patients');
+      } catch (err) {
+        alert("Discharge failed: " + err.message);
+      }
+    }
+
+    // Billing & Invoices
+    async function openCreateBillModal() {
+      const select = document.getElementById('billPatientSelect');
+      const patRes = await API.getHospitalPatients();
+      const patients = patRes.patients || [];
+      if (patients.length === 0) {
+        alert("Please admit a patient first before generating a bill.");
+        return;
+      }
+      select.innerHTML = patients.map(p => `<option value="${p.id}">${p.fullName} (${p.uhid}) - ${p.admissionStatus}</option>`).join('');
+      document.getElementById('createBillModal').style.display = 'flex';
+    }
+    function closeBillModal() { document.getElementById('createBillModal').style.display = 'none'; }
+
+    function addBillItemRow() {
+      const container = document.getElementById('billItemsContainer');
+      const div = document.createElement('div');
+      div.className = 'bill-item-row';
+      div.style.cssText = 'display:grid; grid-template-columns: 2fr 1fr 1fr; gap:8px;';
+      div.innerHTML = `
+        <input type="text" placeholder="Description (e.g. Lab assay, Oxygen)" class="item-desc" required style="padding:8px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-main); font-size:0.85rem;">
+        <input type="number" placeholder="Qty" value="1" class="item-qty" min="1" required style="padding:8px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-main); font-size:0.85rem;">
+        <input type="number" placeholder="Rate (₹)" value="1500" class="item-rate" required style="padding:8px; background:#ffffff; border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-main); font-size:0.85rem;">
+      `;
+      container.appendChild(div);
+    }
+
+    async function handleSaveBill(e) {
+      e.preventDefault();
+      try {
+        const itemRows = document.querySelectorAll('.bill-item-row');
+        const items = [];
+        itemRows.forEach(row => {
+          const desc = row.querySelector('.item-desc').value;
+          const qty = parseInt(row.querySelector('.item-qty').value) || 1;
+          const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+          if (desc) {
+            items.push({ description: desc, quantity: qty, unitPrice: rate, category: "SERVICE" });
+          }
+        });
+
+        const res = await API.createBill({
+          patientId: parseInt(document.getElementById('billPatientSelect').value),
+          paymentStatus: document.getElementById('billPayStatus').value,
+          paymentMethod: document.getElementById('billPayMethod').value,
+          discountAmount: parseFloat(document.getElementById('billDiscount').value) || 0,
+          taxAmount: parseFloat(document.getElementById('billTax').value) || 0,
+          items: items
+        });
+
+        closeBillModal();
+        viewInvoiceReceipt(res.bill.id);
+        renderActiveSection('billing');
+      } catch (err) {
+        alert("Failed to generate bill: " + err.message);
+      }
+    }
+
+    async function handleMarkBillPaid(billId) {
+      try {
+        await API.updateBillPayment(billId, 'PAID', 'UPI');
+        renderActiveSection('billing');
+      } catch (err) {
+        alert("Update failed: " + err.message);
+      }
+    }
+
+    // View Invoice Receipt Modal
+    async function viewInvoiceReceipt(billId) {
+      const modal = document.getElementById('receiptModalOverlay');
+      const inner = document.getElementById('receiptContentContainer');
+      modal.style.display = 'flex';
+
+      try {
+        const b = await API.getBill(billId);
+        const p = b.patient || {};
+        const items = b.items || [];
+
+        const stampClass = b.paymentStatus === 'PAID' ? 'stamp-badge' : (b.paymentStatus === 'PENDING' ? 'stamp-badge stamp-pending' : 'stamp-badge stamp-claim');
+
+        inner.innerHTML = `
+          <div class="invoice-receipt-card">
+            <div class="receipt-header">
+              <div>
+                <h2 style="font-size:1.4rem; font-weight:800; color:var(--charcoal-deep); margin:0 0 4px 0;">${hospitalProfile.name}</h2>
+                <div style="font-size:0.8rem; color:var(--text-muted);">${hospitalProfile.address || 'Central District, Kolkata'} • Ph: ${hospitalProfile.contactNumber || ''}</div>
+                <div style="font-size:0.75rem; color:var(--text-dim); margin-top:2px;">NABH ACCREDITED TERTIARY EMERGENCY CARE</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="${stampClass}">${b.paymentStatus}</div>
+                <div style="font-size:0.85rem; font-weight:700; color:var(--mint-light); margin-top:6px; font-family:monospace;">${b.invoiceNumber}</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">${new Date(b.createdAt).toLocaleString()}</div>
+              </div>
+            </div>
+
+            <div style="background:#f8fafc; border:1px solid var(--border-subtle); padding:12px; border-radius:8px; margin-bottom:14px; display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:0.85rem;">
+              <div>
+                <span style="color:var(--text-muted); font-size:0.78rem;">PATIENT DETAILS</span><br>
+                <strong>${p.fullName || 'Patient'}</strong> (${p.age || 'N/A'}y / ${p.gender || 'N/A'})<br>
+                <span style="color:var(--text-muted);">UHID:</span> <span style="font-family:monospace; color:var(--teal-light);">${p.uhid || ''}</span>
+              </div>
+              <div>
+                <span style="color:var(--text-muted); font-size:0.78rem;">PRIMARY DIAGNOSIS &amp; WARD</span><br>
+                <span>${p.primaryDiagnosis || 'Emergency Admission'}</span><br>
+                <span style="color:var(--text-muted);">Bed:</span> <strong>${p.assignedBedNumber || 'ER-BAY'}</strong>
+              </div>
+            </div>
+
+            <table class="receipt-table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th style="text-align:center;">Qty</th>
+                  <th style="text-align:right;">Unit Rate (₹)</th>
+                  <th style="text-align:right;">Total (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${items.map(it => `
+                  <tr>
+                    <td>${it.description}</td>
+                    <td style="text-align:center;">${it.quantity}</td>
+                    <td style="text-align:right;">₹ ${it.unitPrice.toLocaleString('en-IN')}</td>
+                    <td style="text-align:right; font-weight:600;">₹ ${it.totalPrice.toLocaleString('en-IN')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+
+            <div style="border-top: 1px solid var(--border-subtle); padding-top:12px; display:flex; flex-direction:column; align-items:flex-end; gap:4px; font-size:0.88rem;">
+              <div>Subtotal: <strong>₹ ${b.subtotal.toLocaleString('en-IN')}</strong></div>
+              <div>GST Tax (5%): <strong>₹ ${b.taxAmount.toLocaleString('en-IN')}</strong></div>
+              <div>Discount: <strong style="color:var(--desert-light);">- ₹ ${b.discountAmount.toLocaleString('en-IN')}</strong></div>
+              <div style="font-size:1.25rem; font-weight:800; color:var(--mint-light); margin-top:6px;">
+                Grand Total: ₹ ${b.grandTotal.toLocaleString('en-IN')}
+              </div>
+              <div style="font-size:0.78rem; color:var(--text-muted);">Settled via: <strong>${b.paymentMethod}</strong></div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; padding-top:14px; border-top:1px dashed var(--border-subtle);">
+              <div style="font-size:0.75rem; color:var(--text-muted);">
+                Authorized System Invoicing • Lifeline Health ERP
+              </div>
+              <button onclick="window.print()" class="btn btn-teal" style="font-size:0.8rem; padding:6px 14px;">Print Invoice Receipt</button>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        inner.innerHTML = `<p style="color:var(--desert-light);">Failed to fetch invoice: ${err.message}</p>`;
+      }
+    }
+    function closeReceiptModal() { document.getElementById('receiptModalOverlay').style.display = 'none'; }
+
+    // Attendance
+    function openAttendanceModal() { document.getElementById('logAttendanceModal').style.display = 'flex'; }
+    function closeAttendanceModal() { document.getElementById('logAttendanceModal').style.display = 'none'; }
+
+    async function handleSaveAttendance(e) {
+      e.preventDefault();
+      try {
+        await API.logStaffAttendance({
+          employeeName: document.getElementById('attName').value,
+          employeeRole: document.getElementById('attRole').value,
+          shift: document.getElementById('attShift').value,
+          status: document.getElementById('attStatus').value
+        });
+        closeAttendanceModal();
+        renderActiveSection('attendance');
+      } catch (err) {
+        alert("Attendance log failed: " + err.message);
+      }
+    }
+
+    async function handleCheckOutStaff(attId) {
+      try {
+        await API.checkOutStaff(attId);
+        renderActiveSection('attendance');
+      } catch (err) {
+        alert("Checkout failed: " + err.message);
+      }
+    }
+
+    // Pharmacy
+    async function adjustMedicineStock(id, newUnits) {
+      try {
+        await API.updateMedicineStock(id, Math.max(0, newUnits));
+        renderActiveSection('pharmacy');
+      } catch (err) {
+        alert("Stock update failed: " + err.message);
+      }
+    }
+
+    // Beds & Equipment
+    async function handleSaveBeds(e) {
+      e.preventDefault();
+      try {
+        const res = await API.updateOperations({
+          totalBeds: parseInt(document.getElementById('inpBedTotal').value),
+          availableBeds: parseInt(document.getElementById('inpBedAvail').value),
+          totalICUBeds: parseInt(document.getElementById('inpIcuTotal').value),
+          availableICUBeds: parseInt(document.getElementById('inpIcuAvail').value)
+        });
+        hospitalProfile = res.hospital;
+        alert("Bed capacity saved successfully!");
+      } catch (err) {
+        alert("Failed to save: " + err.message);
+      }
+    }
+
+    function adjustBloodVal(type, delta) {
+      const el = document.getElementById(`bVal_${type}`);
+      let val = Math.max(0, parseInt(el.innerText) + delta);
+      el.innerText = val;
+      if (!hospitalProfile.bloodInventory) hospitalProfile.bloodInventory = {};
+      hospitalProfile.bloodInventory[type] = val;
+    }
+
+    async function handleSaveBlood() {
+      try {
+        const res = await API.updateOperations({
+          bloodInventory: hospitalProfile.bloodInventory
+        });
+        hospitalProfile = res.hospital;
+        alert("Blood bank units saved successfully!");
+      } catch (err) {
+        alert("Failed to save blood bank units: " + err.message);
+      }
+    }
+
+    async function handleSaveEquipment(e) {
+      e.preventDefault();
+      try {
+        const res = await API.updateOperations({
+          ventilators: parseInt(document.getElementById('inpVent').value),
+          oxygenCylinders: parseInt(document.getElementById('inpOxy').value),
+          ambulances: parseInt(document.getElementById('inpAmb').value),
+          cardiacMonitors: parseInt(document.getElementById('inpCard').value)
+        });
+        hospitalProfile = res.hospital;
+        alert("Equipment counts saved successfully!");
+      } catch (err) {
+        alert("Failed to save equipment: " + err.message);
+      }
+    }
+
+    function handleHospitalLogout() {
+      API.logout('login.html?tab=hospital');
+    }
+  </script>
+</body>
+</html>

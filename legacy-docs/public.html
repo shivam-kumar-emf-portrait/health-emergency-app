@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lifeline – AI Medical & Emergency Support</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/public.css" />
+</head>
+
+<body>
+  <div class="cursor-glow"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="logo">🫀 Lifeline</div>
+    <div class="login-group">
+  <button class="login-btn" onclick="goLogin('user')">User Login</button>
+  <button class="login-btn hospital" onclick="goLogin('hospital')">Hospital Login</button>
+</div>
+  </nav>
+
+  <!-- HERO -->
+  <!-- HERO -->
+<section class="hero">
+  <div class="heart-3d"></div>
+
+  <!-- Floating Medical Elements -->
+  <div class="floating heart-outline"></div>
+  <div class="floating cross"></div>
+  <div class="floating dot-grid"></div>
+
+  <!-- ECG Line -->
+  <svg class="ecg-line" viewBox="0 0 1200 200" preserveAspectRatio="none">
+    <path d="M0 100 L200 100 L240 60 L280 140 L320 100 L600 100 
+             L640 70 L680 130 L720 100 L1200 100"
+          fill="none"
+          stroke="#3b82f6"
+          stroke-width="2" />
+  </svg>
+
+  <div class="hero-content">
+    <h1>
+      When seconds matter,<br>
+      <span>Lifeline</span> guides you
+    </h1>
+
+    <p>
+      AI-powered medical guidance & emergency hospital matching  
+      to prevent deaths caused by delayed treatment.
+    </p>
+
+    <button class="cta" onclick="scrollToFeatures()">
+      Explore How It Works
+    </button>
+
+    
+  </div>
+
+</section>
+
+  <!-- PROBLEM -->
+  <section class="section dark">
+    <h2>The Harsh Reality</h2>
+    <p class="wide">
+      Every year, thousands of people lose their lives not because hospitals
+      were unavailable — but because help arrived too late.
+    </p>
+
+    <div class="stats">
+      <div class="stat-card">
+        <h3>⏱️ Delayed Care</h3>
+        <p>Late hospital arrival is a leading cause of preventable deaths.</p>
+      </div>
+      <div class="stat-card">
+        <h3>🚑 Panic</h3>
+        <p>People often don’t know where to go or what to do in emergencies.</p>
+      </div>
+      <div class="stat-card">
+        <h3>🏥 No Visibility</h3>
+        <p>Patients lack real-time info on ICU beds, blood, or facilities.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section class="section" id="features">
+    <h2>How Lifeline Saves Lives</h2>
+
+    <div class="features">
+      <div class="feature">
+        <h3>🧠 AI Medical Chat</h3>
+        <p>
+          Understand symptoms calmly, get guidance, and know
+          when it’s serious — before it’s too late.
+        </p>
+      </div>
+
+      <div class="feature">
+        <h3>🚨 Emergency Mode</h3>
+        <p>
+          Instantly match with the best nearby hospital based on
+          ICU, blood, technology & distance.
+        </p>
+      </div>
+
+      <div class="feature">
+        <h3>📍 Smart Navigation</h3>
+        <p>
+          Direct navigation to hospitals using real-time location
+          so no second is wasted.
+        </p>
+      </div>
+
+      <div class="feature">
+        <h3>📢 Hospital Alerts</h3>
+        <p>
+          Notify hospitals before arrival so they prepare in advance.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLOW -->
+  <section class="section dark">
+    <h2>In an Emergency, Lifeline Works Like This</h2>
+
+    <ol class="flow">
+      <li>User selects emergency type</li>
+      <li>Lifeline checks nearby hospitals</li>
+      <li>Ranks by ICU, blood, technology & distance</li>
+      <li>Top 3 hospitals shown instantly</li>
+      <li>Alert sent & navigation started</li>
+    </ol>
+  </section>
+
+  <!-- CTA -->
+  <section class="final">
+    <h2>Technology shouldn’t arrive late</h2>
+    <p>Join Lifeline and turn panic into clarity.</p>
+    <button class="cta" onclick="goLogin()">Get Started</button>
+  </section>
+
+  <script src="js/public.js"></script>
+</body>
+</html>

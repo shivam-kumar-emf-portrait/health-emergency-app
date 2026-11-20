@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal | Lifeline Hospital Verification &amp; Oversight</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .admin-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .admin-stats-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .admin-stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+    }
+    .admin-stat-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--charcoal-deep);
+      line-height: 1.2;
+    }
+    .admin-stat-lbl {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+    .admin-nav-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid var(--border-subtle);
+      margin-bottom: 22px;
+      overflow-x: auto;
+    }
+    .admin-tab-btn {
+      background: none;
+      border: none;
+      padding: 10px 18px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .admin-tab-btn:hover {
+      color: var(--charcoal-deep);
+    }
+    .admin-tab-btn.active {
+      color: var(--teal-blue);
+      border-bottom-color: var(--teal-blue);
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      background: var(--bg-surface);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-sm);
+    }
+    .admin-table th {
+      background: #f1f5f9;
+      color: var(--charcoal-deep);
+      text-align: left;
+      padding: 12px 14px;
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .admin-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-body);
+      vertical-align: middle;
+    }
+    .admin-table tr:last-child td {
+      border-bottom: none;
+    }
+    .admin-table tr:hover td {
+      background: #f8fafc;
+    }
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .filter-search-input {
+      flex: 1;
+      min-width: 240px;
+      padding: 9px 14px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      font-size: 0.86rem;
+      background: #ffffff;
+      color: var(--text-main);
+    }
+    .filter-select {
+      padding: 9px 12px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      font-size: 0.86rem;
+      background: #ffffff;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .action-btn-sm {
+      padding: 5px 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .action-btn-sm:hover {
+      filter: brightness(0.95);
+    }
+    .btn-verify { background: var(--mint-soft); color: var(--mint-dark); border: 1px solid var(--mint-green); }
+    .btn-inspect { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+    .btn-revoke { background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; }
+    .btn-suspend { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+    .btn-close { background: #f1f5f9; color: #475569; border: 1px solid #94a3b8; }
+    .btn-reopen { background: var(--teal-soft); color: var(--teal-dark); border: 1px solid var(--teal-blue); }
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .badge-verified { background: var(--mint-soft); color: var(--mint-dark); }
+    .badge-pending { background: #fef3c7; color: #b45309; }
+    .badge-suspended { background: #fee2e2; color: #b91c1c; }
+    .badge-closed { background: #f1f5f9; color: #64748b; }
+    .badge-active { background: var(--mint-soft); color: var(--mint-dark); }
+    .badge-blocked { background: #fee2e2; color: #b91c1c; }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+    .modal-card {
+      background: #ffffff;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 26px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+    .info-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 600px) {
+      .info-grid-2 { grid-template-columns: 1fr; }
+    }
+    .info-field-box {
+      background: var(--bg-surface-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .info-field-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .info-field-val {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--charcoal-deep);
+      word-break: break-word;
+    }
+    .clickable-row {
+      cursor: pointer;
+    }
+    .clickable-row:hover {
+      background: #f1f5f9 !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Admin Header -->
+    <header class="admin-topbar">
+      <div>
+        <a href="index.html" class="brand-title">
+          <span class="brand-dot" style="background: var(--teal-blue);"></span>
+          <span style="font-weight: 800; color: var(--charcoal-deep); font-size: 1.15rem;">Lifeline</span>
+          <span style="font-weight: 700; color: var(--teal-blue); font-size: 0.95rem; margin-left: 6px;">Admin Portal</span>
+        </a>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+          Hospital Verification, Quality Control &amp; User Oversight
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <span class="badge badge-teal" style="font-size: 0.78rem; padding: 6px 12px;">
+          Admin Active &bull; Health Authority
+        </span>
+        <a href="emergency.html" class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 14px;">
+          Emergency Mode
+        </a>
+        <a href="index.html" class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 14px;">
+          Home
+        </a>
+        <button class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 14px;" onclick="API.logout('login.html?tab=admin')">
+          Sign Out
+        </button>
+      </div>
+    </header>
+
+    <!-- Platform KPI Strip (Focused purely on Hospitals, Users, and Complaints) -->
+    <div class="admin-stats-strip">
+      <div class="admin-stat-card">
+        <div class="admin-stat-val" id="statTotalHosp">--</div>
+        <div class="admin-stat-lbl">Total Hospitals</div>
+      </div>
+      <div class="admin-stat-card" style="border-left: 4px solid #b45309;">
+        <div class="admin-stat-val" style="color: #b45309;" id="statPendingHosp">--</div>
+        <div class="admin-stat-lbl">Pending Verification</div>
+      </div>
+      <div class="admin-stat-card" style="border-left: 4px solid var(--mint-green);">
+        <div class="admin-stat-val text-mint" id="statVerifiedHosp">--</div>
+        <div class="admin-stat-lbl">Verified Active Hospitals</div>
+      </div>
+      <div class="admin-stat-card" style="border-left: 4px solid var(--teal-blue);">
+        <div class="admin-stat-val text-teal" id="statTotalUsers">--</div>
+        <div class="admin-stat-lbl">Registered Patients</div>
+      </div>
+      <div class="admin-stat-card" style="border-left: 4px solid var(--desert-sun);">
+        <div class="admin-stat-val text-desert" id="statOpenReports">--</div>
+        <div class="admin-stat-lbl">Complaints &amp; Reports</div>
+      </div>
+    </div>
+
+    <!-- 3 Focused Navigation Tabs -->
+    <div class="admin-nav-tabs">
+      <button class="admin-tab-btn active" onclick="switchAdminTab('hospitals', this)">
+        Hospital Verification &amp; Control (<span id="tabCountHosp">0</span>)
+      </button>
+      <button class="admin-tab-btn" onclick="switchAdminTab('users', this)">
+        Users &amp; Citizens (<span id="tabCountUsers">0</span>)
+      </button>
+      <button class="admin-tab-btn" onclick="switchAdminTab('reports', this)">
+        Complaints &amp; Reports Desk (<span id="tabCountReports">0</span>)
+      </button>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: HOSPITAL VERIFICATION & CONTROL -->
+    <!-- ============================================================== -->
+    <div id="tabContent_hospitals" class="tab-pane">
+      <div class="filter-bar">
+        <input 
+          type="text" 
+          id="hospSearchInput" 
+          class="filter-search-input" 
+          placeholder="Search hospital name, license number, email, phone, or area..." 
+          oninput="debounceHospSearch()"
+        />
+        <select id="hospStatusSelect" class="filter-select" onchange="loadAdminHospitals()">
+          <option value="ALL">All Hospital Statuses</option>
+          <option value="PENDING" selected>Pending Verification (Action Required)</option>
+          <option value="VERIFIED">Verified Active</option>
+          <option value="SUSPENDED">Suspended</option>
+          <option value="CLOSED_PERMANENTLY">Closed Permanently</option>
+        </select>
+        <button class="btn btn-subtle" style="font-size: 0.82rem; padding: 9px 16px;" onclick="loadAdminHospitals()">
+          Refresh
+        </button>
+      </div>
+
+      <div style="margin-bottom: 10px; font-size: 0.82rem; color: var(--text-muted);">
+        Tip: Click on any hospital name or click <strong>Inspect Details</strong> to see registered email, phone number, address, and license before verifying.
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Hospital Name &amp; License</th>
+              <th>Registered Contact (Email &amp; Phone)</th>
+              <th>Medical Director</th>
+              <th>Location &amp; Area</th>
+              <th>Intake</th>
+              <th>Verification Status</th>
+              <th>Administrative Actions</th>
+            </tr>
+          </thead>
+          <tbody id="hospitalsTableBody">
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">Loading hospitals from database...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: USER & CITIZEN MANAGEMENT -->
+    <!-- ============================================================== -->
+    <div id="tabContent_users" class="tab-pane" style="display: none;">
+      <div class="filter-bar">
+        <input 
+          type="text" 
+          id="userSearchInput" 
+          class="filter-search-input" 
+          placeholder="Search citizen by name, email, or phone number..." 
+          oninput="debounceUserSearch()"
+        />
+        <select id="userStatusSelect" class="filter-select" onchange="loadAdminUsers()">
+          <option value="ALL">All Users</option>
+          <option value="ACTIVE">Active Users</option>
+          <option value="BLOCKED">Suspended / Blocked Accounts</option>
+        </select>
+        <button class="btn btn-subtle" style="font-size: 0.82rem; padding: 9px 16px;" onclick="loadAdminUsers()">
+          Refresh Users
+        </button>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>User Name &amp; Email</th>
+              <th>Phone Number</th>
+              <th>Known Health Conditions</th>
+              <th>Account Role</th>
+              <th>Account Status</th>
+              <th>Administrative Action</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">Loading users...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 3: COMPLAINTS & REPORTS DESK -->
+    <!-- ============================================================== -->
+    <div id="tabContent_reports" class="tab-pane" style="display: none;">
+      <div class="filter-bar">
+        <select id="reportTypeSelect" class="filter-select" onchange="loadAdminReports()">
+          <option value="ALL">All Reports</option>
+          <option value="USER_TO_HOSPITAL">Citizen reporting Hospital</option>
+          <option value="HOSPITAL_TO_USER">Hospital reporting Citizen</option>
+        </select>
+        <select id="reportStatusSelect" class="filter-select" onchange="loadAdminReports()">
+          <option value="ALL">All Statuses</option>
+          <option value="PENDING_REVIEW" selected>Pending Review (Action Needed)</option>
+          <option value="INVESTIGATING">Under Investigation</option>
+          <option value="ACTION_TAKEN">Action Taken</option>
+          <option value="RESOLVED">Resolved</option>
+          <option value="DISMISSED">Dismissed</option>
+        </select>
+        <button class="btn btn-subtle" style="font-size: 0.82rem; padding: 9px 16px;" onclick="loadAdminReports()">
+          Refresh Complaints
+        </button>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Report ID &amp; Type</th>
+              <th>Reporting Party</th>
+              <th>Target Entity</th>
+              <th>Category &amp; Rating</th>
+              <th>Severity</th>
+              <th>Complaint Summary</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="reportsTableBody">
+            <tr>
+              <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 24px;">Loading reports...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: HOSPITAL FULL CREDENTIAL INSPECTION & ACTION -->
+  <!-- ============================================================== -->
+  <div class="modal-overlay" id="inspectHospitalModal">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+        <div>
+          <span style="font-size: 0.72rem; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.5px;">Hospital Registration Details</span>
+          <h2 id="inspectHospName" style="font-size: 1.35rem; font-weight: 800; color: var(--charcoal-deep); margin: 2px 0 0 0;">--</h2>
+        </div>
+        <span id="inspectHospStatusBadge" class="status-badge">--</span>
+      </div>
+
+      <input type="hidden" id="inspectHospId" />
+
+      <!-- Contact & Registration Info (Visible before verifying) -->
+      <div class="info-grid-2">
+        <div class="info-field-box">
+          <div class="info-field-label">Registered Email</div>
+          <div class="info-field-val" id="inspectHospEmail">--</div>
+        </div>
+
+        <div class="info-field-box">
+          <div class="info-field-label">Registered Phone Number</div>
+          <div class="info-field-val" id="inspectHospPhone">--</div>
+        </div>
+
+        <div class="info-field-box">
+          <div class="info-field-label">Medical License Number</div>
+          <div class="info-field-val" id="inspectHospLicense">--</div>
+        </div>
+
+        <div class="info-field-box">
+          <div class="info-field-label">Medical Director / CMO</div>
+          <div class="info-field-val" id="inspectHospDirector">--</div>
+        </div>
+      </div>
+
+      <!-- Facility Address & GPS -->
+      <div class="info-field-box" style="margin-bottom: 12px;">
+        <div class="info-field-label">Facility Physical Address</div>
+        <div class="info-field-val" id="inspectHospAddress">--</div>
+        <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 4px;">
+          GPS Coordinates: <code id="inspectHospGps">--</code>
+        </div>
+      </div>
+
+      <!-- Emergency Capacity Overview -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;">
+        <div class="info-field-box" style="text-align: center;">
+          <div class="info-field-label">General Beds</div>
+          <div class="info-field-val" id="inspectHospBeds">--</div>
+        </div>
+        <div class="info-field-box" style="text-align: center;">
+          <div class="info-field-label">ICU Beds</div>
+          <div class="info-field-val" id="inspectHospIcu" style="color: var(--mint-dark);">--</div>
+        </div>
+        <div class="info-field-box" style="text-align: center;">
+          <div class="info-field-label">Ventilators</div>
+          <div class="info-field-val" id="inspectHospVents">--</div>
+        </div>
+        <div class="info-field-box" style="text-align: center;">
+          <div class="info-field-label">Ambulances</div>
+          <div class="info-field-val" id="inspectHospAmbulances">--</div>
+        </div>
+      </div>
+
+      <!-- Previous Verification Notes -->
+      <div id="inspectHospNotesContainer" style="display: none; background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 0.82rem;">
+        <strong style="color: var(--charcoal-deep); display: block; margin-bottom: 2px;">Verification History &amp; Inspector Remarks:</strong>
+        <span id="inspectHospNotesText" style="color: var(--text-body);">--</span>
+      </div>
+
+      <!-- Action Panel Inside Modal -->
+      <div style="background: var(--bg-surface-subtle); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px; margin-top: 8px;">
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--charcoal-deep); display: block; margin-bottom: 4px;">
+          Admin Action Notes:
+        </label>
+        <textarea id="inspectModalNotes" placeholder="Enter inspection remarks, medical license verification confirmation, or suspension reason..." style="width: 100%; height: 60px; padding: 8px 10px; border: 1px solid var(--border-subtle); border-radius: 6px; font-size: 0.84rem; margin-bottom: 12px; resize: vertical;"></textarea>
+
+        <div style="display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap;" id="inspectModalActions">
+          <!-- Populated dynamically based on status -->
+        </div>
+      </div>
+
+      <div style="text-align: right; margin-top: 14px;">
+        <button class="btn btn-subtle" onclick="closeModal('inspectHospitalModal')">Close Inspection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OTHER ACTION MODALS -->
+  <!-- 1. Verify Hospital Modal (Quick) -->
+  <div class="modal-overlay" id="verifyHospitalModal">
+    <div class="modal-card">
+      <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--charcoal-deep); margin-bottom: 8px;">
+        Verify &amp; Approve Hospital
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+        Confirm that this hospital is legitimate, licensed, and ready for emergency patient recommendations.
+      </p>
+      <input type="hidden" id="verifyHospId" />
+      <div style="margin-bottom: 14px;">
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--charcoal-deep); display: block; margin-bottom: 4px;">Hospital Name</label>
+        <input type="text" id="verifyHospName" readonly style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-subtle); border-radius: 6px; background: #f8fafc; font-size: 0.86rem;" />
+      </div>
+      <div style="margin-bottom: 14px;">
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--charcoal-deep); display: block; margin-bottom: 4px;">Verification Remarks</label>
+        <textarea id="verifyHospNotes" placeholder="Enter verification confirmation notes..." style="width: 100%; height: 80px; padding: 8px 12px; border: 1px solid var(--border-subtle); border-radius: 6px; font-size: 0.85rem;"></textarea>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn btn-subtle" onclick="closeModal('verifyHospitalModal')">Cancel</button>
+        <button class="btn btn-mint" onclick="submitVerifyHospital()">Approve Hospital &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Permanent Closure Modal -->
+  <div class="modal-overlay" id="closeHospitalModal">
+    <div class="modal-card">
+      <h3 style="font-size: 1.15rem; font-weight: 800; color: #b91c1c; margin-bottom: 8px;">
+        Close Hospital Permanently
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+        Permanently remove this hospital from the emergency care network. Can be undone later if needed.
+      </p>
+      <input type="hidden" id="closeHospId" />
+      <div style="margin-bottom: 14px;">
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--charcoal-deep); display: block; margin-bottom: 4px;">Reason for Permanent Closure</label>
+        <textarea id="closeHospReason" placeholder="Enter reason for permanent closure..." style="width: 100%; height: 80px; padding: 8px 12px; border: 1px solid var(--border-subtle); border-radius: 6px; font-size: 0.85rem;"></textarea>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn btn-subtle" onclick="closeModal('closeHospitalModal')">Cancel</button>
+        <button class="btn btn-desert" style="background: #b91c1c; color: #ffffff;" onclick="submitClosePermanently()">Close Hospital Forever</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Block User Modal -->
+  <div class="modal-overlay" id="blockUserModal">
+    <div class="modal-card">
+      <h3 style="font-size: 1.15rem; font-weight: 800; color: #b91c1c; margin-bottom: 8px;">
+        Suspend User Account
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+        Suspend this patient account to prevent false emergency alerts or abusive behavior.
+      </p>
+      <input type="hidden" id="blockUserId" />
+      <div style="margin-bottom: 14px;">
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--charcoal-deep); display: block; margin-bottom: 4px;">Reason for Suspension</label>
+        <textarea id="blockUserReason" placeholder="Enter reason (e.g. repeated false emergency alerts, abusive conduct)..." style="width: 100%; height: 80px; padding: 8px 12px; border: 1px solid var(--border-subtle); border-radius: 6px; font-size: 0.85rem;"></textarea>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn btn-subtle" onclick="closeModal('blockUserModal')">Cancel</button>
+        <button class="btn btn-desert" style="background: #b91c1c; color: #ffffff;" onclick="submitBlockUser()">Suspend Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Action Report Modal -->
+  <div class="modal-overlay" id="actionReportModal">
+    <div class="modal-card">
+      <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--charcoal-deep); margin-bottom: 8px;">
+        Take Action on Complaint
+      </h3>
+      <input type="hidden" id="actionReportId" />
+      <div style="margin-bottom: 12px;">
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--charcoal-deep); display: block; margin-bottom: 4px;">Resolution Status</label>
+        <select id="actionReportStatus" class="filter-select" style="width: 100%;">
+          <option value="ACTION_TAKEN">Action Taken (Warning or Penalty Enforced)</option>
+          <option value="RESOLVED">Resolved Amicably</option>
+          <option value="INVESTIGATING">Under Investigation</option>
+          <option value="DISMISSED">Dismiss Complaint</option>
+        </select>
+      </div>
+      <div style="margin-bottom: 12px;">
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--charcoal-deep); display: block; margin-bottom: 4px;">Action Taken</label>
+        <input type="text" id="actionReportAction" placeholder="e.g. Warning letter issued, Fee refunded, Account suspended..." style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-subtle); border-radius: 6px; font-size: 0.86rem;" />
+      </div>
+      <div style="margin-bottom: 12px;">
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--charcoal-deep); display: block; margin-bottom: 4px;">Investigation Notes</label>
+        <textarea id="actionReportNotes" placeholder="Enter remarks and findings..." style="width: 100%; height: 75px; padding: 8px 12px; border: 1px solid var(--border-subtle); border-radius: 6px; font-size: 0.85rem;"></textarea>
+      </div>
+      <div style="margin-bottom: 16px; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 6px; padding: 10px 12px;">
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: #9f1239; cursor: pointer;">
+          <input type="checkbox" id="actionReportBlockTarget" style="cursor: pointer;" />
+          Automatically suspend / block the reported entity
+        </label>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn btn-subtle" onclick="closeModal('actionReportModal')">Cancel</button>
+        <button class="btn btn-teal" onclick="submitActionReport()">Save Action &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    // Strict Role Guard: Only ROLE_SUPER_ADMIN can access
+    if (!API.guardRoute(['ROLE_SUPER_ADMIN'], 'login.html?tab=admin')) {
+      throw new Error("Access Denied: Super Admin role required");
+    }
+
+    let hospSearchTimer = null;
+    let userSearchTimer = null;
+    let cachedHospitals = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadStats();
+      loadAdminHospitals();
+    });
+
+    function switchAdminTab(tabName, btn) {
+      document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+      const targetPane = document.getElementById(`tabContent_${tabName}`);
+      if (targetPane) targetPane.style.display = 'block';
+
+      if (tabName === 'hospitals') loadAdminHospitals();
+      if (tabName === 'users') loadAdminUsers();
+      if (tabName === 'reports') loadAdminReports();
+    }
+
+    async function loadStats() {
+      try {
+        const stats = await API.getAdminStats();
+        document.getElementById('statTotalHosp').innerText = stats.totalHospitals || 0;
+        document.getElementById('statPendingHosp').innerText = stats.pendingHospitals || 0;
+        document.getElementById('statVerifiedHosp').innerText = stats.verifiedHospitals || 0;
+        document.getElementById('statTotalUsers').innerText = stats.totalUsers || 0;
+        document.getElementById('statOpenReports').innerText = stats.openReports || 0;
+
+        document.getElementById('tabCountHosp').innerText = stats.totalHospitals || 0;
+        document.getElementById('tabCountUsers').innerText = stats.totalUsers || 0;
+        document.getElementById('tabCountReports').innerText = stats.openReports || 0;
+      } catch (err) {
+        console.warn("Could not load stats:", err);
+      }
+    }
+
+    function debounceHospSearch() {
+      clearTimeout(hospSearchTimer);
+      hospSearchTimer = setTimeout(loadAdminHospitals, 220);
+    }
+
+    async function loadAdminHospitals() {
+      const search = document.getElementById('hospSearchInput').value.trim();
+      const status = document.getElementById('hospStatusSelect').value;
+      const tbody = document.getElementById('hospitalsTableBody');
+
+      try {
+        const hospitals = await API.getAdminHospitals(search, status);
+        cachedHospitals = hospitals || [];
+
+        if (!hospitals || hospitals.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">No hospitals found matching filter criteria.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = hospitals.map(h => {
+          let badgeHtml = '';
+          if (h.isClosedPermanently) {
+            badgeHtml = `<span class="status-badge badge-closed">Permanently Closed</span>`;
+          } else if (!h.isActive) {
+            badgeHtml = `<span class="status-badge badge-suspended">Suspended</span>`;
+          } else if (h.isVerified) {
+            badgeHtml = `<span class="status-badge badge-verified">Verified Active</span>`;
+          } else {
+            badgeHtml = `<span class="status-badge badge-pending">Pending Verification</span>`;
+          }
+
+          let intakeHtml = h.isOpen ? 
+            `<span style="color:var(--mint-dark); font-weight:700;">Open</span>` : 
+            `<span style="color:#b91c1c; font-weight:700;">Closed</span>`;
+
+          let actionsHtml = '';
+          if (h.isClosedPermanently) {
+            actionsHtml = `
+              <button class="action-btn-sm btn-inspect" onclick="openInspectModal(${h.id})">Inspect Details</button>
+              <button class="action-btn-sm btn-reopen" onclick="undoClosure(${h.id})">Undo Closure</button>
+            `;
+          } else if (!h.isVerified) {
+            actionsHtml = `
+              <button class="action-btn-sm btn-inspect" onclick="openInspectModal(${h.id})">Inspect Details</button>
+              <button class="action-btn-sm btn-verify" onclick="openVerifyModal(${h.id}, '${escapeQuote(h.name)}')">Approve</button>
+              <button class="action-btn-sm btn-close" onclick="openCloseModal(${h.id})">Decommission</button>
+            `;
+          } else {
+            // Verified
+            actionsHtml = `
+              <button class="action-btn-sm btn-inspect" onclick="openInspectModal(${h.id})">Inspect Details</button>
+              <button class="action-btn-sm btn-revoke" onclick="unverifyHosp(${h.id})">Revoke</button>
+              <button class="action-btn-sm btn-suspend" onclick="toggleSuspendHosp(${h.id})">${h.isActive ? 'Suspend' : 'Reactivate'}</button>
+              <button class="action-btn-sm btn-close" onclick="openCloseModal(${h.id})">Close Forever</button>
+            `;
+          }
+
+          return `
+            <tr>
+              <td>
+                <div style="font-weight: 700; color: var(--charcoal-deep); cursor: pointer;" onclick="openInspectModal(${h.id})" title="Click to view full registered info">
+                  <span style="color: var(--teal-blue); text-decoration: underline;">${escapeHtml(h.name)}</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+                  Lic: <code>${escapeHtml(h.licenseNumber || 'REG-PENDING')}</code>
+                </div>
+              </td>
+              <td>
+                <div style="font-weight: 600; color: var(--charcoal-deep);">${escapeHtml(h.email || 'No email')}</div>
+                <div style="font-size: 0.76rem; color: var(--text-muted);">${escapeHtml(h.contactNumber || 'No phone')}</div>
+              </td>
+              <td>${escapeHtml(h.directorName || 'Medical Director')}</td>
+              <td>
+                <div>${escapeHtml(h.address || 'Address')}</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">GPS: ${h.latitude ? h.latitude.toFixed(4) : '--'}, ${h.longitude ? h.longitude.toFixed(4) : '--'}</div>
+              </td>
+              <td>${intakeHtml}</td>
+              <td>${badgeHtml}</td>
+              <td><div style="display: flex; gap: 4px; flex-wrap: wrap;">${actionsHtml}</div></td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="color: #b91c1c; padding: 20px;">Error loading hospitals: ${err.message}</td></tr>`;
+      }
+    }
+
+    // ==========================================
+    // INSPECT HOSPITAL DETAILS MODAL
+    // ==========================================
+    function openInspectModal(id) {
+      const h = cachedHospitals.find(item => item.id === id);
+      if (!h) return;
+
+      document.getElementById('inspectHospId').value = h.id;
+      document.getElementById('inspectHospName').innerText = h.name;
+      document.getElementById('inspectHospEmail').innerText = h.email || 'Not provided';
+      document.getElementById('inspectHospPhone').innerText = h.contactNumber || 'Not provided';
+      document.getElementById('inspectHospLicense').innerText = h.licenseNumber || 'REG-PENDING';
+      document.getElementById('inspectHospDirector').innerText = h.directorName || 'Medical Director';
+      document.getElementById('inspectHospAddress').innerText = h.address || 'Address not listed';
+      document.getElementById('inspectHospGps').innerText = `${h.latitude || 0}, ${h.longitude || 0}`;
+      document.getElementById('inspectHospBeds').innerText = `${h.availableBeds || 0} / ${h.totalBeds || 0}`;
+      document.getElementById('inspectHospIcu').innerText = `${h.availableICUBeds || 0} / ${h.totalICUBeds || 0}`;
+      document.getElementById('inspectHospVents').innerText = `${h.ventilators || 0} Units`;
+      document.getElementById('inspectHospAmbulances').innerText = `${h.ambulances || 0} Ready`;
+
+      // Badge
+      const badgeEl = document.getElementById('inspectHospStatusBadge');
+      if (h.isClosedPermanently) {
+        badgeEl.className = 'status-badge badge-closed';
+        badgeEl.innerText = 'Permanently Closed';
+      } else if (!h.isActive) {
+        badgeEl.className = 'status-badge badge-suspended';
+        badgeEl.innerText = 'Suspended';
+      } else if (h.isVerified) {
+        badgeEl.className = 'status-badge badge-verified';
+        badgeEl.innerText = 'Verified Active';
+      } else {
+        badgeEl.className = 'status-badge badge-pending';
+        badgeEl.innerText = 'Pending Verification';
+      }
+
+      // Verification notes
+      const notesBox = document.getElementById('inspectHospNotesContainer');
+      const notesText = document.getElementById('inspectHospNotesText');
+      if (h.verificationNotes) {
+        notesBox.style.display = 'block';
+        notesText.innerText = h.verificationNotes;
+      } else {
+        notesBox.style.display = 'none';
+      }
+
+      // Modal Actions
+      const actionsContainer = document.getElementById('inspectModalActions');
+      let actBtns = '';
+
+      if (h.isClosedPermanently) {
+        actBtns = `
+          <button class="btn btn-mint" onclick="undoClosureFromModal(${h.id})">Undo Closure &amp; Re-activate</button>
+        `;
+      } else if (!h.isVerified) {
+        actBtns = `
+          <button class="btn btn-mint" onclick="approveFromModal(${h.id})">Verify &amp; Approve Hospital &rarr;</button>
+          <button class="btn btn-desert" style="background:#b91c1c; color:#fff;" onclick="openCloseModal(${h.id})">Reject / Close Forever</button>
+        `;
+      } else {
+        actBtns = `
+          <button class="btn btn-subtle" onclick="unverifyFromModal(${h.id})">Revoke Verification</button>
+          <button class="btn btn-desert" style="background:#b45309; color:#fff;" onclick="toggleSuspendFromModal(${h.id})">${h.isActive ? 'Suspend Hospital' : 'Re-activate Hospital'}</button>
+          <button class="btn btn-desert" style="background:#b91c1c; color:#fff;" onclick="openCloseModal(${h.id})">Close Hospital Forever</button>
+        `;
+      }
+      actionsContainer.innerHTML = actBtns;
+
+      document.getElementById('inspectModalNotes').value = h.isVerified ? 
+        `Audit review on ${new Date().toLocaleDateString()}` : 
+        `Verified official email, phone hotline, and state medical board license on ${new Date().toLocaleDateString()}. Approved for emergency intake.`;
+
+      openModal('inspectHospitalModal');
+    }
+
+    async function approveFromModal(id) {
+      const notes = document.getElementById('inspectModalNotes').value.trim() || 'Approved by Super Admin after credential inspection.';
+      try {
+        await API.verifyHospital(id, notes);
+        alert('Hospital verified and approved! It will now be recommended to citizens during emergencies.');
+        closeModal('inspectHospitalModal');
+        loadStats();
+        loadAdminHospitals();
+      } catch (err) {
+        alert('Verification failed: ' + err.message);
+      }
+    }
+
+    async function unverifyFromModal(id) {
+      if (!confirm('Are you sure you want to revoke this hospital\'s verification? It will no longer receive emergency referrals.')) return;
+      try {
+        await API.unverifyHospital(id);
+        alert('Hospital verification revoked.');
+        closeModal('inspectHospitalModal');
+        loadStats();
+        loadAdminHospitals();
+      } catch (err) {
+        alert('Action failed: ' + err.message);
+      }
+    }
+
+    async function toggleSuspendFromModal(id) {
+      try {
+        await API.toggleHospitalSuspend(id);
+        alert('Hospital suspension status toggled.');
+        closeModal('inspectHospitalModal');
+        loadStats();
+        loadAdminHospitals();
+      } catch (err) {
+        alert('Action failed: ' + err.message);
+      }
+    }
+
+    async function undoClosureFromModal(id) {
+      try {
+        await API.undoPermanentClosure(id);
+        alert('Hospital closure undone. Hospital restored to active evaluation.');
+        closeModal('inspectHospitalModal');
+        loadStats();
+        loadAdminHospitals();
+      } catch (err) {
+        alert('Action failed: ' + err.message);
+      }
+    }
+
+    // Quick verify modal actions
+    function openVerifyModal(id, name) {
+      document.getElementById('verifyHospId').value = id;
+      document.getElementById('verifyHospName').value = name;
+      document.getElementById('verifyHospNotes').value = `Verified medical board license & emergency capability on ${new Date().toLocaleDateString()}. Facility accredited for regional trauma & critical care intake.`;
+      openModal('verifyHospitalModal');
+    }
+
+    async function submitVerifyHospital() {
+      const id = document.getElementById('verifyHospId').value;
+      const notes = document.getElementById('verifyHospNotes').value;
+      try {
+        await API.verifyHospital(id, notes);
+        alert("Hospital successfully verified and accredited!");
+        closeModal('verifyHospitalModal');
+        loadStats();
+        loadAdminHospitals();
+      } catch (err) {
+        alert("Verification failed: " + err.message);
+      }
+    }
+
+    async function unverifyHosp(id) {
+      if (!confirm("Revoke verification? This hospital will not be recommended in emergency search.")) return;
+      try {
+        await API.unverifyHospital(id);
+        loadStats();
+        loadAdminHospitals();
+      } catch (err) {
+        alert("Action failed: " + err.message);
+      }
+    }
+
+    async function toggleSuspendHosp(id) {
+      try {
+        await API.toggleHospitalSuspend(id);
+        loadStats();
+        loadAdminHospitals();
+      } catch (err) {
+        alert("Action failed: " + err.message);
+      }
+    }
+
+    function openCloseModal(id) {
+      document.getElementById('closeHospId').value = id;
+      document.getElementById('closeHospReason').value = "Permanent decommissioning order issued by Health Regulatory Authority.";
+      openModal('closeHospitalModal');
+    }
+
+    async function submitClosePermanently() {
+      const id = document.getElementById('closeHospId').value;
+      const reason = document.getElementById('closeHospReason').value;
+      try {
+        await API.closeHospitalPermanently(id, reason);
+        alert("Hospital closed permanently.");
+        closeModal('closeHospitalModal');
+        closeModal('inspectHospitalModal');
+        loadStats();
+        loadAdminHospitals();
+      } catch (err) {
+        alert("Decommissioning failed: " + err.message);
+      }
+    }
+
+    async function undoClosure(id) {
+      if (!confirm("Undo permanent closure and restore hospital to platform evaluation?")) return;
+      try {
+        await API.undoPermanentClosure(id);
+        alert("Permanent closure undone. Hospital returned to platform oversight.");
+        loadStats();
+        loadAdminHospitals();
+      } catch (err) {
+        alert("Action failed: " + err.message);
+      }
+    }
+
+    // ==========================================
+    // TAB 2: CITIZEN USER MANAGEMENT
+    // ==========================================
+    function debounceUserSearch() {
+      clearTimeout(userSearchTimer);
+      userSearchTimer = setTimeout(loadAdminUsers, 220);
+    }
+
+    async function loadAdminUsers() {
+      const search = document.getElementById('userSearchInput').value.trim();
+      const status = document.getElementById('userStatusSelect').value;
+      const tbody = document.getElementById('usersTableBody');
+
+      try {
+        const users = await API.getAdminUsers(search, status);
+        if (!users || users.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">No users found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = users.map(u => {
+          const isBlocked = u.isBlocked;
+          const badge = isBlocked ? 
+            `<span class="status-badge badge-blocked">Suspended</span>` : 
+            `<span class="status-badge badge-active">Active</span>`;
+
+          const btnText = isBlocked ? 'Unblock User' : 'Suspend User';
+          const btnClass = isBlocked ? 'btn-mint' : 'btn-revoke';
+
+          return `
+            <tr>
+              <td>
+                <div style="font-weight: 700; color: var(--charcoal-deep);">${escapeHtml(u.name)}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">${escapeHtml(u.email)}</div>
+              </td>
+              <td>${escapeHtml(u.phone || 'Not provided')}</td>
+              <td>${escapeHtml(u.knownConditions || 'None registered')}</td>
+              <td><span class="badge badge-teal">${escapeHtml(u.role)}</span></td>
+              <td>${badge}</td>
+              <td>
+                <button class="action-btn-sm ${btnClass}" onclick="openBlockUserModal(${u.id}, ${isBlocked})">
+                  ${btnText}
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="color: #b91c1c; padding: 20px;">Error loading users: ${err.message}</td></tr>`;
+      }
+    }
+
+    function openBlockUserModal(userId, isCurrentlyBlocked) {
+      if (isCurrentlyBlocked) {
+        if (confirm("Remove disciplinary suspension from this user account?")) {
+          submitToggleBlockUser(userId, "");
+        }
+        return;
+      }
+
+      document.getElementById('blockUserId').value = userId;
+      document.getElementById('blockUserReason').value = "Disciplinary suspension for fraudulent emergency calls or reported misconduct.";
+      openModal('blockUserModal');
+    }
+
+    async function submitBlockUser() {
+      const id = document.getElementById('blockUserId').value;
+      const reason = document.getElementById('blockUserReason').value;
+      await submitToggleBlockUser(id, reason);
+      closeModal('blockUserModal');
+    }
+
+    async function submitToggleBlockUser(userId, reason) {
+      try {
+        await API.toggleBlockUser(userId, reason);
+        loadStats();
+        loadAdminUsers();
+      } catch (err) {
+        alert("Failed to update user status: " + err.message);
+      }
+    }
+
+    // ==========================================
+    // TAB 3: COMPLAINTS & REPORTS DESK
+    // ==========================================
+    async function loadAdminReports() {
+      const type = document.getElementById('reportTypeSelect').value;
+      const status = document.getElementById('reportStatusSelect').value;
+      const tbody = document.getElementById('reportsTableBody');
+
+      try {
+        const reports = await API.getAdminReports(type, status, 'ALL');
+        if (!reports || reports.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 24px;">No grievance reports in this view.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = reports.map(r => {
+          let typeLabel = r.reportType === 'USER_TO_HOSPITAL' ? 
+            `<span class="badge badge-desert">Citizen &rarr; Hospital</span>` : 
+            `<span class="badge badge-teal">Hospital &rarr; Citizen</span>`;
+
+          let statusBadge = `<span class="status-badge badge-pending">${escapeHtml(r.status)}</span>`;
+          if (r.status === 'RESOLVED' || r.status === 'ACTION_TAKEN') {
+            statusBadge = `<span class="status-badge badge-verified">${escapeHtml(r.status)}</span>`;
+          } else if (r.status === 'DISMISSED') {
+            statusBadge = `<span class="status-badge badge-closed">Dismissed</span>`;
+          }
+
+          return `
+            <tr>
+              <td>
+                <strong>#${r.id}</strong><br>
+                ${typeLabel}
+              </td>
+              <td>
+                <div style="font-weight: 600;">${escapeHtml(r.reporterName || 'Anonymous')}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">${escapeHtml(r.reporterEmail || '')}</div>
+              </td>
+              <td>
+                <div style="font-weight: 700; color: var(--charcoal-deep);">${escapeHtml(r.targetName || 'Entity')}</div>
+              </td>
+              <td>
+                <div>${escapeHtml(r.category || 'General')}</div>
+                ${r.rating ? `<div style="font-size:0.75rem; color:var(--desert-dark);">Rating: ${r.rating}/5</div>` : ''}
+              </td>
+              <td><span class="badge ${r.severity === 'CRITICAL' ? 'badge-desert' : 'badge-subtle'}">${escapeHtml(r.severity || 'NORMAL')}</span></td>
+              <td style="max-width: 240px; font-size: 0.82rem; line-height: 1.4;">
+                ${escapeHtml(r.description || '')}
+                ${r.adminNotes ? `<div style="margin-top: 4px; color: var(--teal-dark); font-size: 0.75rem;"><strong>Admin:</strong> ${escapeHtml(r.adminNotes)}</div>` : ''}
+              </td>
+              <td>${statusBadge}</td>
+              <td>
+                <button class="action-btn-sm btn-verify" onclick="openActionReportModal(${r.id})">
+                  Action &rarr;
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" style="color: #b91c1c; padding: 20px;">Error loading reports: ${err.message}</td></tr>`;
+      }
+    }
+
+    function openActionReportModal(id) {
+      document.getElementById('actionReportId').value = id;
+      document.getElementById('actionReportAction').value = "Formal warning notice issued and logged in state registry.";
+      document.getElementById('actionReportNotes').value = "Incident reviewed with submitted telemetry and verified records.";
+      openModal('actionReportModal');
+    }
+
+    async function submitActionReport() {
+      const id = document.getElementById('actionReportId').value;
+      const status = document.getElementById('actionReportStatus').value;
+      const action = document.getElementById('actionReportAction').value;
+      const notes = document.getElementById('actionReportNotes').value;
+      const blockTarget = document.getElementById('actionReportBlockTarget').checked;
+
+      try {
+        await API.actionReport(id, status, action, notes, blockTarget);
+        alert("Action saved on complaint report.");
+        closeModal('actionReportModal');
+        loadStats();
+        loadAdminReports();
+      } catch (err) {
+        alert("Failed to action report: " + err.message);
+      }
+    }
+
+    // Modal Helpers
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function escapeQuote(str) {
+      if (!str) return '';
+      return String(str).replace(/'/g, "\\'");
+    }
+  </script>
+</body>
+</html>

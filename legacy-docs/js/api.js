@@ -1,0 +1,1 @@
+window.API_BASE = "https://health-emergency-backend.onrender.com";

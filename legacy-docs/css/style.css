@@ -1,0 +1,275 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap");
+
+* {
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #020617, #0f172a);
+  color: #e5e7eb;
+  overflow: hidden; 
+}
+
+
+.dashboard {
+  display: flex;
+  height: 100vh;
+  
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  background: #0f172a;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  
+}
+.sidebar h3 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 35px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+
+.sidebar button {
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #1e293b;
+  color: white;
+  cursor: pointer;
+}
+
+.sidebar .danger {
+  background: #7f1d1d;
+}
+
+.chat-list {
+  margin-top: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.chat-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: #1e293b;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.chat-item.active {
+  background: #2563eb;
+}
+
+.delete-chat {
+  color: #ef4444;
+  cursor: pointer;
+}
+
+/* MAIN */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;        /* 🔥 Lock height */
+
+}
+
+.top-bar {
+  height: 70px;              /* slightly taller */
+  padding: 15px 30px 0 30px; /* push content down */
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+
+
+.logout-btn {
+  padding: 8px 18px;
+  border-radius: 20px;
+  background: #1e293b;
+  border: none;
+  color: white;
+}
+
+
+
+.chat-header {
+  padding: 20px 40px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* === CHAT SECTION FIXED STRUCTURE === */
+
+.chat-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 70px);  /* subtract top bar height */
+}
+
+
+.chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px 22%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* VERY IMPORTANT */
+.chat-body::after {
+  content: "";
+  flex-shrink: 0;
+  height: 20px;
+}
+
+
+.msg {
+  max-width: 75%;
+  padding: 16px 20px;
+  border-radius: 20px;
+  font-size: 16px;
+  line-height: 1.7;
+  word-wrap: break-word;
+}
+
+.msg.user {
+  align-self: flex-end;
+  background: #2563eb;
+}
+
+.msg.ai {
+  align-self: flex-start;
+  background: #1e293b;
+}
+
+
+.chat-input-area {
+  padding: 16px 22%;
+  padding-bottom: 22px;   /* extra bottom breathing space */
+  background: #0f172a;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.chat-input-area textarea {
+  flex: 1;
+  resize: none;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: none;
+  font-size: 15px;
+  background: #1e293b;
+  color: white;
+  outline: none;
+  min-height: 48px;
+  max-height: 120px;
+  line-height: 1.5;
+}
+
+
+.chat-input-area textarea::placeholder {
+  color: rgba(255,255,255,0.45);
+  font-weight: 400;
+}
+
+.send-btn {
+  margin-left: 12px;
+  padding: 12px 25px;
+  border-radius: 14px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.send-btn:hover {
+  background: #1d4ed8;
+}
+.new-chat-btn {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.new-chat-btn:hover {
+  background: #1d4ed8;
+}
+/* ================= LOGOUT MODAL ================= */
+
+.logout-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(5px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.logout-box {
+  background: #0f172a;
+  padding: 30px;
+  border-radius: 18px;
+  text-align: center;
+  width: 320px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+}
+
+.logout-box h3 {
+  margin-bottom: 10px;
+}
+
+.logout-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.yes-btn,
+.no-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.yes-btn {
+  background: #ef4444;
+  color: white;
+  margin-right: 10px;
+}
+
+.no-btn {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}

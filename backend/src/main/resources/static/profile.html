@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Profile &amp; Hospital Care History | Lifeline</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/emergency.css">
+  <style>
+    .profile-page-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px 60px 20px;
+    }
+
+    .profile-hero-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 26px 30px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .profile-avatar-circle {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--teal-blue) 0%, var(--teal-dark) 100%);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+      flex-shrink: 0;
+    }
+
+    .profile-identity-info {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .profile-kpi-group {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .profile-kpi-box {
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 12px 18px;
+      text-align: center;
+      min-width: 105px;
+    }
+
+    .profile-kpi-val {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--charcoal-deep);
+      line-height: 1.1;
+    }
+
+    .profile-kpi-lbl {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-top: 4px;
+    }
+
+    .profile-nav-tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 2px solid var(--border-subtle);
+      margin-bottom: 24px;
+      overflow-x: auto;
+      background: var(--bg-surface);
+      padding: 6px 12px 0 12px;
+      border-radius: 12px 12px 0 0;
+      border: 1px solid var(--border-subtle);
+      border-bottom: 2px solid var(--border-subtle);
+    }
+
+    .profile-tab-btn {
+      padding: 11px 18px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: -2px;
+    }
+
+    .profile-tab-btn:hover {
+      color: var(--charcoal-deep);
+    }
+
+    .profile-tab-btn.active {
+      color: var(--teal-blue);
+      border-bottom-color: var(--teal-blue);
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    .card-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 24px 28px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+    }
+
+    .card-panel-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--charcoal-deep);
+      margin: 0 0 6px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .card-panel-subtitle {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin: 0 0 20px 0;
+    }
+
+    .form-group-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 700px) {
+      .form-group-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--charcoal-deep);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .form-control-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      background: #ffffff;
+      color: var(--charcoal-deep);
+      transition: all 0.2s;
+    }
+
+    .form-control-input:focus {
+      border-color: var(--teal-blue);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+    }
+
+    .form-control-input[readonly] {
+      background: var(--bg-canvas);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    .history-card-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .history-card-item:hover {
+      border-color: var(--border-muted);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .rating-eligible-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 18px;
+      transition: all 0.2s;
+    }
+
+    .rating-eligible-card.reviewed {
+      background: var(--teal-soft);
+      border-color: var(--teal-border);
+    }
+
+    .interactive-stars {
+      display: inline-flex;
+      gap: 6px;
+      font-size: 1.7rem;
+      cursor: pointer;
+      user-select: none;
+      margin-top: 4px;
+    }
+
+    .star-item {
+      color: #cbd5e1;
+      transition: color 0.15s ease, transform 0.1s ease;
+    }
+
+    .star-item:hover {
+      transform: scale(1.15);
+    }
+
+    .star-item.active {
+      color: #f59e0b;
+    }
+
+    .policy-callout {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 4px solid var(--mint-green);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 22px;
+      font-size: 0.86rem;
+      color: #14532d;
+      line-height: 1.55;
+    }
+  </style>
+</head>
+<body style="background: var(--bg-canvas); min-height: 100vh;">
+
+  <!-- Global Navigation Header -->
+  <header style="background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); padding: 12px 24px; position: sticky; top: 0; z-index: 50;">
+    <div style="max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 14px;">
+      <a href="index.html" class="brand-title" style="text-decoration: none; font-size: 1.28rem;">
+        <span class="brand-dot"></span>
+        <span>Lifeline</span>
+        <span style="font-size: 0.82rem; font-weight: 700; color: var(--teal-dark); margin-left: 6px; background: var(--teal-soft); padding: 3px 8px; border-radius: 6px;">
+          Patient Hub
+        </span>
+      </a>
+
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <a href="emergency.html" class="btn btn-mint" style="font-size: 0.82rem; padding: 7px 14px;">
+          Emergency Finder
+        </a>
+        <a href="chat.html" class="btn btn-teal" style="font-size: 0.82rem; padding: 7px 14px;">
+          Doctor Chat
+        </a>
+        <a href="index.html" class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 14px;">
+          Home
+        </a>
+        <button onclick="API.logout('login.html?tab=patient')" class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 14px; color: var(--desert-dark);">
+          Sign Out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Profile Page Container -->
+  <main class="profile-page-container">
+
+    <!-- Top Identity Hero Card -->
+    <div class="profile-hero-card">
+      <div style="display: flex; align-items: center; gap: 18px;">
+        <div class="profile-avatar-circle" id="userAvatarText">SK</div>
+        <div class="profile-identity-info">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;">
+            <h1 style="font-size: 1.45rem; font-weight: 800; color: var(--charcoal-deep); margin: 0;" id="heroUserName">
+              Shivam Kumar
+            </h1>
+            <span class="badge badge-mint" style="font-size: 0.72rem; padding: 4px 8px;">
+              Verified Citizen Account
+            </span>
+          </div>
+          <div style="font-size: 0.84rem; color: var(--text-muted); display: flex; gap: 14px; flex-wrap: wrap;">
+            <span id="heroUserEmail">patient@lifeline.com</span>
+            <span>&bull;</span>
+            <span id="heroUserPhone">+91 98765 43210</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick KPI Badges -->
+      <div class="profile-kpi-group">
+        <div class="profile-kpi-box">
+          <div class="profile-kpi-val" id="kpiAlertCount">0</div>
+          <div class="profile-kpi-lbl">Alerts</div>
+        </div>
+        <div class="profile-kpi-box">
+          <div class="profile-kpi-val text-mint" id="kpiCheckupCount">0</div>
+          <div class="profile-kpi-lbl">Visits</div>
+        </div>
+        <div class="profile-kpi-box">
+          <div class="profile-kpi-val text-teal" id="kpiReviewCount">0</div>
+          <div class="profile-kpi-lbl">Ratings</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="profile-nav-tabs">
+      <button class="profile-tab-btn active" id="tabBtn_info" onclick="switchProfileTab('info', this)">
+        Personal Details
+      </button>
+      <button class="profile-tab-btn" id="tabBtn_alerts" onclick="switchProfileTab('alerts', this)">
+        Emergency Alert History (<span id="tabBadgeAlerts">0</span>)
+      </button>
+      <button class="profile-tab-btn" id="tabBtn_checkups" onclick="switchProfileTab('checkups', this)">
+        Hospital Treatments (<span id="tabBadgeCheckups">0</span>)
+      </button>
+      <button class="profile-tab-btn" id="tabBtn_reviews" onclick="switchProfileTab('reviews', this)">
+        Rate Completed Hospital (<span id="tabBadgeEligible">0</span>)
+      </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: PERSONAL & MEDICAL IDENTITY         -->
+    <!-- ========================================== -->
+    <div id="pane_info" class="tab-pane active">
+      <div class="card-panel">
+        <div class="card-panel-title">
+          <span>Personal &amp; Emergency Medical Record</span>
+          <span class="badge badge-teal" style="font-size: 0.72rem;">Encrypted Citizen Record</span>
+        </div>
+        <p class="card-panel-subtitle">
+          Keep your emergency details up to date. Hospitals and emergency wards use these records for pre-arrival triage.
+        </p>
+
+        <form onsubmit="handleProfileUpdate(event)">
+          <div class="form-group-grid">
+            <div>
+              <label class="form-label">Full Legal Name</label>
+              <input type="text" id="inputName" class="form-control-input" required placeholder="Shivam Kumar">
+            </div>
+            <div>
+              <label class="form-label">Mobile Phone Number</label>
+              <input type="text" id="inputPhone" class="form-control-input" required placeholder="+91 98765 43210">
+            </div>
+          </div>
+
+          <div class="form-group-grid">
+            <div>
+              <label class="form-label">Official Email Address (Read-Only)</label>
+              <input type="email" id="inputEmail" class="form-control-input" readonly placeholder="patient@lifeline.com">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div>
+                <label class="form-label">Age</label>
+                <input type="number" id="inputAge" class="form-control-input" placeholder="38">
+              </div>
+              <div>
+                <label class="form-label">Gender</label>
+                <select id="inputGender" class="form-control-input">
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 22px;">
+            <label class="form-label">Known Health Conditions &amp; Allergies</label>
+            <textarea id="inputConditions" class="form-control-input" rows="3" placeholder="e.g. Mild Hypertension, Asthma, Penicillin allergy"></textarea>
+            <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; display: block;">
+              Visible to hospital doctors during emergency intake for safe drug administration.
+            </span>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 12px; align-items: center;">
+            <span id="saveProfileNotice" style="font-size: 0.82rem; color: var(--mint-dark); font-weight: 700; display: none;">
+              Profile changes saved successfully!
+            </span>
+            <button type="submit" class="btn btn-mint" id="btnSaveProfile" style="padding: 10px 22px; font-size: 0.9rem;">
+              Save Profile Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: EMERGENCY ALERT HISTORY             -->
+    <!-- ========================================== -->
+    <div id="pane_alerts" class="tab-pane">
+      <div class="card-panel">
+        <div class="card-panel-title">
+          <span>Emergency Alerts &amp; Ward Dispatches</span>
+          <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted);" id="alertsCountSubtext">0 Alerts on File</span>
+        </div>
+        <p class="card-panel-subtitle">
+          Real-time record of all emergency alarms and hospital notifications initiated from your citizen account.
+        </p>
+
+        <div id="alertsListContainer">
+          <p style="color: var(--text-muted); font-size: 0.86rem; padding: 20px 0;">Loading alert history...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: HOSPITAL TREATMENTS & ADMISSIONS     -->
+    <!-- ========================================== -->
+    <div id="pane_checkups" class="tab-pane">
+      <div class="card-panel">
+        <div class="card-panel-title">
+          <span>Completed Hospital Treatments &amp; Admissions (EHR)</span>
+          <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted);" id="checkupsCountSubtext">0 Clinical Records</span>
+        </div>
+        <p class="card-panel-subtitle">
+          Verified medical records matched with your registered identity from hospital health systems.
+        </p>
+
+        <div id="checkupsListContainer">
+          <p style="color: var(--text-muted); font-size: 0.86rem; padding: 20px 0;">Loading hospital treatment history...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: RATE COMPLETED HOSPITAL TREATMENT   -->
+    <!-- ========================================== -->
+    <div id="pane_reviews" class="tab-pane">
+      <div class="card-panel">
+        <div class="card-panel-title">
+          <span>Verified Hospital Ratings &amp; Quality Feedback</span>
+          <span class="badge badge-mint" style="font-size: 0.72rem;">Authentic Patient Reviews</span>
+        </div>
+        <p class="card-panel-subtitle">
+          Share your real healthcare experience. In order to ensure honest quality metrics, reviews can only be submitted for hospitals where you have completed treatment.
+        </p>
+
+        <!-- Healthcare Review Policy Alert -->
+        <div class="policy-callout">
+          <strong>Verified Reviews Security Policy:</strong>
+          To prevent fake ratings and duplication, a patient can only review a hospital after their emergency care or admission has been marked as <strong>Completed</strong> or <strong>Discharged</strong> by the hospital administration. Each facility visit can only be rated once.
+        </div>
+
+        <!-- Dynamic List of Hospitals Eligible for Review -->
+        <div id="eligibleReviewsContainer">
+          <p style="color: var(--text-muted); font-size: 0.86rem; padding: 20px 0;">Checking completed medical treatments...</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="js/api.js"></script>
+  <script>
+    // Strict Route Guard: Citizen Role Required
+    if (!API.guardRoute(['ROLE_USER', 'ROLE_SUPER_ADMIN'], 'login.html?tab=patient')) {
+      throw new Error("Access Denied: Patient sign in required");
+    }
+
+    let profileData = null;
+    let eligibleList = [];
+    let selectedRatingValues = {}; // hospitalId -> rating
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check query parameter for initial tab
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialTab = urlParams.get('tab') || 'info';
+      switchProfileTab(initialTab);
+
+      await loadCompleteProfile();
+      await loadEligibleReviews();
+
+      // If specific hospitalId passed in URL, scroll to it
+      const targetHospId = urlParams.get('hospitalId');
+      if (targetHospId) {
+        switchProfileTab('reviews');
+        setTimeout(() => {
+          const el = document.getElementById('rateCard_' + targetHospId);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+      }
+    });
+
+    function switchProfileTab(tabName, btn) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
+
+      const targetPane = document.getElementById('pane_' + tabName);
+      if (targetPane) targetPane.classList.add('active');
+
+      if (btn) {
+        btn.classList.add('active');
+      } else {
+        const matchingBtn = document.getElementById('tabBtn_' + tabName);
+        if (matchingBtn) matchingBtn.classList.add('active');
+      }
+    }
+
+    async function loadCompleteProfile() {
+      try {
+        const data = await API.getUserProfile();
+        profileData = data;
+        const u = data.user || {};
+
+        // Update Hero Card
+        document.getElementById('heroUserName').innerText = u.name || 'Citizen Patient';
+        document.getElementById('heroUserEmail').innerText = u.email || '';
+        document.getElementById('heroUserPhone').innerText = u.phone || 'Phone not set';
+
+        // Avatar Initials
+        const initials = (u.name || 'SK').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        document.getElementById('userAvatarText').innerText = initials;
+
+        // Update Form
+        document.getElementById('inputName').value = u.name || '';
+        document.getElementById('inputPhone').value = u.phone || '';
+        document.getElementById('inputEmail').value = u.email || '';
+        document.getElementById('inputAge').value = u.age || 38;
+        document.getElementById('inputGender').value = u.gender || 'Male';
+        document.getElementById('inputConditions').value = u.knownConditions || '';
+
+        // Update Counts
+        const alertCount = (data.alertHistory || []).length;
+        const checkupCount = (data.checkupHistory || []).length;
+        const reviewCount = (data.feedbackHistory || []).length;
+
+        document.getElementById('kpiAlertCount').innerText = alertCount;
+        document.getElementById('kpiCheckupCount').innerText = checkupCount;
+        document.getElementById('kpiReviewCount').innerText = reviewCount;
+
+        document.getElementById('tabBadgeAlerts').innerText = alertCount;
+        document.getElementById('tabBadgeCheckups').innerText = checkupCount;
+
+        renderAlertsList(data.alertHistory || []);
+        renderCheckupsList(data.checkupHistory || []);
+      } catch (err) {
+        console.error("Failed to load user profile:", err);
+      }
+    }
+
+    function renderAlertsList(alerts) {
+      const container = document.getElementById('alertsListContainer');
+      document.getElementById('alertsCountSubtext').innerText = `${alerts.length} Alert Record${alerts.length === 1 ? '' : 's'}`;
+
+      if (!alerts || alerts.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 36px 20px; color: var(--text-muted);">
+            <div style="font-size: 1.1rem; font-weight: 700; color: var(--charcoal-deep); margin-bottom: 6px;">No Emergency Alerts On File</div>
+            <p style="font-size: 0.85rem; max-width: 440px; margin: 0 auto;">
+              Whenever you notify a hospital ward from the Emergency Finder, the incident status, telemetry timestamps, and assigned triage team appear here.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = alerts.map(a => {
+        const hospName = a.hospital ? a.hospital.name : 'Emergency Facility';
+        const hospId = a.hospital ? a.hospital.id : 1;
+        const isCompleted = a.status === 'COMPLETED' || a.status === 'RESOLVED';
+        const formattedDate = new Date(a.createdAt).toLocaleString('en-IN', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        });
+
+        return `
+          <div class="history-card-item">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <span class="badge ${isCompleted ? 'badge-mint' : 'badge-desert'}" style="font-size: 0.72rem;">
+                  ${a.status}
+                </span>
+                <span class="badge badge-teal" style="font-size: 0.72rem;">
+                  ${a.emergencyType || 'EMERGENCY'}
+                </span>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">${formattedDate}</span>
+              </div>
+              <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--charcoal-deep); margin: 0 0 4px 0;">
+                ${hospName}
+              </h3>
+              <p style="font-size: 0.82rem; color: var(--text-body); margin: 0;">
+                ${a.notes || 'Emergency pre-arrival notification logged with triage desk.'}
+              </p>
+            </div>
+
+            <div>
+              ${isCompleted ? `
+                <button class="btn btn-mint" style="font-size: 0.78rem; padding: 7px 14px;" onclick="goToRateHospital(${hospId})">
+                  Rate Treatment &rarr;
+                </button>
+              ` : `
+                <span style="font-size: 0.75rem; color: var(--text-muted); font-style: italic;">
+                  Care in progress
+                </span>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCheckupsList(checkups) {
+      const container = document.getElementById('checkupsListContainer');
+      document.getElementById('checkupsCountSubtext').innerText = `${checkups.length} Medical Visit${checkups.length === 1 ? '' : 's'}`;
+
+      if (!checkups || checkups.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 36px 20px; color: var(--text-muted);">
+            <div style="font-size: 1.1rem; font-weight: 700; color: var(--charcoal-deep); margin-bottom: 6px;">No Clinical Admission Records</div>
+            <p style="font-size: 0.85rem; max-width: 440px; margin: 0 auto;">
+              When admitted or discharged from any participating hospital, your clinical diagnosis and electronic health records sync automatically to this identity hub.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = checkups.map(c => {
+        const isDischarged = (c.admissionStatus || '').toUpperCase() === 'DISCHARGED';
+        const hospId = c.hospitalId || 1;
+        const hospName = c.hospitalName || 'Metro Heart & Emergency Institute';
+        const admDate = new Date(c.admissionDate).toLocaleDateString('en-IN', { dateStyle: 'medium' });
+
+        return `
+          <div class="history-card-item">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <span class="badge ${isDischarged ? 'badge-mint' : 'badge-desert'}" style="font-size: 0.72rem;">
+                  ${c.admissionStatus}
+                </span>
+                <code style="font-size: 0.75rem; background: var(--bg-canvas); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-subtle);">
+                  ${c.uhid || 'UHID-2026'}
+                </code>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">Admitted: ${admDate}</span>
+              </div>
+              <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--charcoal-deep); margin: 0 0 4px 0;">
+                ${hospName}
+              </h3>
+              <p style="font-size: 0.84rem; color: var(--text-body); margin: 0;">
+                <strong>Primary Diagnosis:</strong> ${c.primaryDiagnosis || 'Clinical Assessment & Emergency Observation'}
+                &nbsp;|&nbsp; <strong>Bed / Ward:</strong> ${c.assignedBedNumber || 'ER Observation'}
+              </p>
+            </div>
+
+            <div>
+              ${isDischarged ? `
+                <button class="btn btn-mint" style="font-size: 0.78rem; padding: 7px 14px;" onclick="goToRateHospital(${hospId})">
+                  Rate Care &rarr;
+                </button>
+              ` : `
+                <span class="badge badge-teal" style="font-size: 0.74rem;">Active Inpatient</span>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadEligibleReviews() {
+      const container = document.getElementById('eligibleReviewsContainer');
+      try {
+        const eligible = await API.getEligibleReviewHospitals();
+        eligibleList = eligible || [];
+
+        document.getElementById('tabBadgeEligible').innerText = eligibleList.length;
+
+        if (eligibleList.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px; background: var(--bg-canvas); border-radius: 12px; border: 1px dashed var(--border-subtle);">
+              <div style="font-size: 1.15rem; font-weight: 800; color: var(--charcoal-deep); margin-bottom: 6px;">
+                No Completed Hospital Treatments Eligible for Rating Yet
+              </div>
+              <p style="font-size: 0.86rem; color: var(--text-muted); max-width: 500px; margin: 0 auto; line-height: 1.6;">
+                In accordance with healthcare anti-spam and verification protocols, patients can only rate hospitals where they have received care and had treatment marked as <strong>Completed</strong> or <strong>Discharged</strong>.
+              </p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = eligibleList.map(h => {
+          const hid = h.hospitalId;
+          const hasReviewed = h.hasReviewed;
+          const review = h.existingReview;
+
+          if (hasReviewed && review) {
+            // Already Reviewed: Show verified rating summary (No duplicate submissions!)
+            return `
+              <div class="rating-eligible-card reviewed" id="rateCard_${hid}">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                  <div>
+                    <span class="badge badge-mint" style="font-size: 0.74rem; font-weight: 800; padding: 4px 8px; margin-bottom: 4px; display: inline-block;">
+                      ✓ Verified Review Submitted
+                    </span>
+                    <h3 style="font-size: 1.18rem; font-weight: 800; color: var(--charcoal-deep); margin: 0 0 2px 0;">
+                      ${h.hospitalName}
+                    </h3>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">
+                      Treatment: <strong>${h.treatmentType}</strong> &bull; ${h.hospitalAddress || 'Address on record'}
+                    </div>
+                  </div>
+
+                  <div style="text-align: right;">
+                    <div style="color: #f59e0b; font-size: 1.25rem; font-weight: 800;">
+                      ${'★'.repeat(review.rating || 5)}${'☆'.repeat(5 - (review.rating || 5))}
+                      <span style="font-size: 0.95rem; color: var(--charcoal-deep); margin-left: 4px;">(${review.rating}.0 / 5)</span>
+                    </div>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">
+                      Submitted on ${new Date(review.createdAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                    </span>
+                  </div>
+                </div>
+
+                <div style="background: #ffffff; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 16px; margin-top: 10px;">
+                  <div style="font-size: 0.74rem; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; margin-bottom: 4px;">
+                    Category: ${review.category || 'Clinical Care Quality'}
+                  </div>
+                  <p style="font-size: 0.88rem; color: var(--charcoal-deep); margin: 0; line-height: 1.5;">
+                    "${review.description}"
+                  </p>
+                </div>
+
+                <div style="margin-top: 10px; font-size: 0.75rem; color: var(--teal-dark); font-weight: 600;">
+                  ✓ Your rating is dynamically reflected in the hospital's public emergency readiness score.
+                </div>
+              </div>
+            `;
+          } else {
+            // Not Yet Reviewed: Show clean rating form
+            selectedRatingValues[hid] = 5; // default 5 stars
+
+            return `
+              <div class="rating-eligible-card" id="rateCard_${hid}">
+                <div style="margin-bottom: 14px;">
+                  <span class="badge badge-teal" style="font-size: 0.72rem; margin-bottom: 4px; display: inline-block;">
+                    Verified Completed Care
+                  </span>
+                  <h3 style="font-size: 1.18rem; font-weight: 800; color: var(--charcoal-deep); margin: 0 0 2px 0;">
+                    ${h.hospitalName}
+                  </h3>
+                  <div style="font-size: 0.82rem; color: var(--text-muted);">
+                    Treatment Record: <strong>${h.treatmentType}</strong> &bull; ${h.hospitalAddress || 'Address on record'}
+                  </div>
+                </div>
+
+                <form onsubmit="handleReviewSubmit(event, ${hid})">
+                  <div style="margin-bottom: 14px;">
+                    <label class="form-label">Your Rating (1 to 5 Stars)</label>
+                    <div class="interactive-stars" id="starGroup_${hid}">
+                      <span class="star-item active" data-star="1" onclick="chooseStars(${hid}, 1)">★</span>
+                      <span class="star-item active" data-star="2" onclick="chooseStars(${hid}, 2)">★</span>
+                      <span class="star-item active" data-star="3" onclick="chooseStars(${hid}, 3)">★</span>
+                      <span class="star-item active" data-star="4" onclick="chooseStars(${hid}, 4)">★</span>
+                      <span class="star-item active" data-star="5" onclick="chooseStars(${hid}, 5)">★</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group-grid" style="margin-bottom: 14px;">
+                    <div>
+                      <label class="form-label">Care Dimension</label>
+                      <select id="reviewCat_${hid}" class="form-control-input">
+                        <option value="Care Quality">Care Quality &amp; Treatment</option>
+                        <option value="Emergency Response Speed">Emergency Response Speed</option>
+                        <option value="Doctor Attention">Doctor &amp; Nursing Attention</option>
+                        <option value="Bed Availability">Bed &amp; ICU Availability</option>
+                        <option value="Billing Transparency">Billing &amp; Pharmacy Transparency</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="form-label">Feedback Sentiment</label>
+                      <select id="reviewSev_${hid}" class="form-control-input">
+                        <option value="LOW">Satisfied &amp; Commendable Experience</option>
+                        <option value="MEDIUM">Constructive Suggestion</option>
+                        <option value="HIGH">Complaint / Quality Grievance</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style="margin-bottom: 16px;">
+                    <label class="form-label">Your Honest Feedback &amp; Clinical Experience</label>
+                    <textarea id="reviewDesc_${hid}" class="form-control-input" rows="3" required placeholder="Describe doctor responsiveness, triage speed, and bed accommodations during your visit..."></textarea>
+                  </div>
+
+                  <div style="display: flex; justify-content: flex-end;">
+                    <button type="submit" class="btn btn-desert" id="btnSubmit_${hid}" style="padding: 10px 22px; font-size: 0.88rem;">
+                      Submit Verified Rating &rarr;
+                    </button>
+                  </div>
+                </form>
+              </div>
+            `;
+          }
+        }).join('');
+      } catch (err) {
+        container.innerHTML = `<p style="color: var(--desert-dark);">Error loading eligible treatments: ${err.message}</p>`;
+      }
+    }
+
+    function chooseStars(hospitalId, stars) {
+      selectedRatingValues[hospitalId] = stars;
+      const group = document.getElementById('starGroup_' + hospitalId);
+      if (!group) return;
+      const starSpans = group.querySelectorAll('.star-item');
+      starSpans.forEach(s => {
+        const val = parseInt(s.getAttribute('data-star'));
+        if (val <= stars) {
+          s.classList.add('active');
+        } else {
+          s.classList.remove('active');
+        }
+      });
+    }
+
+    function goToRateHospital(hospitalId) {
+      switchProfileTab('reviews');
+      setTimeout(() => {
+        const el = document.getElementById('rateCard_' + hospitalId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+          el.style.boxShadow = '0 0 0 3px rgba(13, 148, 136, 0.3)';
+          setTimeout(() => el.style.boxShadow = '', 2500);
+        }
+      }, 200);
+    }
+
+    async function handleReviewSubmit(e, hospitalId) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmit_' + hospitalId);
+      const rating = selectedRatingValues[hospitalId] || 5;
+      const category = document.getElementById('reviewCat_' + hospitalId).value;
+      const severity = document.getElementById('reviewSev_' + hospitalId).value;
+      const description = document.getElementById('reviewDesc_' + hospitalId).value.trim();
+
+      if (!description) {
+        alert("Please describe your experience in the feedback box.");
+        return;
+      }
+
+      btn.innerText = "Submitting Review...";
+      btn.disabled = true;
+
+      try {
+        await API.submitHospitalReview({
+          hospitalId,
+          rating,
+          category,
+          severity,
+          description
+        });
+
+        alert("Thank you! Your verified hospital review and rating have been recorded. It is now dynamically included in the public hospital score.");
+        await loadEligibleReviews();
+        await loadCompleteProfile();
+      } catch (err) {
+        alert("Review Notice: " + err.message);
+        btn.innerText = "Submit Verified Rating →";
+        btn.disabled = false;
+      }
+    }
+
+    async function handleProfileUpdate(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSaveProfile');
+      const notice = document.getElementById('saveProfileNotice');
+      const name = document.getElementById('inputName').value.trim();
+      const phone = document.getElementById('inputPhone').value.trim();
+      const age = parseInt(document.getElementById('inputAge').value) || 38;
+      const gender = document.getElementById('inputGender').value;
+      const knownConditions = document.getElementById('inputConditions').value.trim();
+
+      btn.innerText = "Saving Changes...";
+      btn.disabled = true;
+
+      try {
+        const res = await API.updateUserProfile({ name, phone, age, gender, knownConditions });
+        
+        // Update local session storage
+        const session = API.getSession();
+        if (session) {
+          session.name = name;
+          if (res.token) session.token = res.token;
+          API.setSession(session);
+        }
+
+        // Show visual feedback
+        notice.style.display = 'inline';
+        setTimeout(() => { notice.style.display = 'none'; }, 4000);
+
+        await loadCompleteProfile();
+      } catch (err) {
+        alert("Failed to update profile: " + err.message);
+      } finally {
+        btn.innerText = "Save Profile Changes";
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
+

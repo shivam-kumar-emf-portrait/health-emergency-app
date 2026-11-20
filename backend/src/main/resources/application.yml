@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: health-emergency-backend
+  datasource:
+    url: jdbc:h2:mem:health_emergency_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+    username: sa
+    password: 
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+openrouter:
+  apiKey: ${OPENROUTER_API_KEY:}
+  apiUrl: "https://openrouter.ai/api/v1/chat/completions"
+  model: "meta-llama/llama-3.1-8b-instruct"
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expirationMs: 604800000 # 7 days in milliseconds
+
+logging:
+  level:
+    com.lifeline.emergency: INFO
+    org.springframework.security: WARN

@@ -1,48 +1,494 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Login | Lifeline</title>
-  <link rel="stylesheet" href="css/auth.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In &amp; Authentication | Lifeline</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .auth-page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: var(--bg-canvas);
+    }
+
+    .auth-card-frame {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      max-width: 500px;
+      width: 100%;
+      padding: 34px;
+      position: relative;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+    }
+
+    .auth-role-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 22px;
+      background: var(--bg-surface-subtle);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .role-tab-btn {
+      flex: 1;
+      padding: 9px 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .role-tab-btn.active {
+      background: var(--bg-surface);
+      color: var(--charcoal-deep);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .field-label {
+      font-size: 0.82rem;
+      color: var(--text-body);
+      font-weight: 600;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-muted);
+      border-radius: 9px;
+      padding: 11px 14px;
+      color: var(--text-main);
+      font-size: 0.92rem;
+      outline: none;
+      margin-bottom: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--teal-blue);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+    }
+
+    .demo-shelf {
+      background: var(--bg-surface-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 22px;
+    }
+
+    .demo-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .demo-card:hover {
+      border-color: var(--teal-blue);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .demo-card-title {
+      font-weight: 700;
+      font-size: 0.84rem;
+      color: var(--charcoal-deep);
+    }
+
+    .demo-card-sub {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    .demo-card-action {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--teal-dark);
+      margin-top: 4px;
+    }
+  </style>
 </head>
 <body>
 
-  <div class="auth-card">
-    <h2 id="formTitle">Login</h2>
+  <div class="auth-page-wrapper">
+    <div class="auth-card-frame">
+      <!-- Portal Brand Header -->
+      <div style="text-align: center; margin-bottom: 22px;">
+        <a href="index.html" class="brand-title" style="justify-content: center; font-size: 1.55rem; text-decoration: none;">
+          <span class="brand-dot"></span>
+          <span style="font-weight: 800; color: var(--charcoal-deep);">Lifeline</span>
+          <span style="font-weight: 700; color: var(--desert-sun); margin-left: 6px;">Portal</span>
+        </a>
+        <p style="color: var(--text-muted); font-size: 0.84rem; margin-top: 4px;">Simple Sign In for Patients, Hospitals &amp; Admins</p>
+      </div>
 
-    <!-- USER REGISTER ONLY -->
-    <input type="text" id="name" placeholder="Name" class="signup-only" style="display:none;" />
-    <input type="number" id="age" placeholder="Age" class="signup-only" style="display:none;" />
-    <input type="text" id="conditions" placeholder="Known conditions (comma separated)" class="signup-only" style="display:none;" />
+      <!-- 3 Role Tabs -->
+      <div class="auth-role-tabs">
+        <button class="role-tab-btn active" id="tabUserBtn" onclick="selectRole('patient')">
+          Patient
+        </button>
+        <button class="role-tab-btn" id="tabHospBtn" onclick="selectRole('hospital')">
+          Hospital
+        </button>
+        <button class="role-tab-btn" id="tabAdminBtn" onclick="selectRole('admin')">
+          Admin
+        </button>
+      </div>
 
-    <!-- HOSPITAL REGISTER ONLY -->
-    <input type="text" id="hospitalName" placeholder="Hospital Name" class="hospital-only" style="display:none;" />
-    <input type="text" id="contactNumber" placeholder="Contact Number" class="hospital-only" style="display:none;" />
+      <!-- Main Form -->
+      <form onsubmit="handleFormSubmit(event)">
+        <!-- Register-only fields -->
+        <div id="registerFieldsBox" style="display: none;">
+          <label class="field-label" id="nameFieldLabel">Full Name</label>
+          <input type="text" id="regName" class="form-input" placeholder="e.g. Ramesh Ghosh / Dr. A. Sen">
 
-    <input type="number" step="any" id="lat" placeholder="Latitude (e.g. 22.5726)" class="hospital-only" style="display:none;" />
-    <input type="number" step="any" id="lng" placeholder="Longitude (e.g. 88.3639)" class="hospital-only" style="display:none;" />
+          <div id="patientExtraFields">
+            <label class="field-label">Phone Number</label>
+            <input type="text" id="regPhone" class="form-input" placeholder="+91 98765 43210">
 
-    <!-- 📍 NEW BUTTON -->
-    <button type="button"
-            class="hospital-only"
-            id="locationBtn"
-            onclick="getCurrentLocation()"
-            style="display:none;">
-      📍 Get Current Location
-    </button>
+            <label class="field-label">Known Health Conditions</label>
+            <input type="text" id="regConditions" class="form-input" placeholder="e.g. Asthma, Hypertension, Diabetes">
+          </div>
 
-    <!-- COMMON -->
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
+          <div id="hospitalExtraFields" style="display: none;">
+            <label class="field-label">Emergency Desk Hotline</label>
+            <input type="text" id="regHospPhone" class="form-input" placeholder="+91 33 2456 7890">
 
-    <button id="submitBtn" onclick="handleAuth()">Login</button>
+            <label class="field-label">Medical Registration / License Number</label>
+            <input type="text" id="regLicense" class="form-input" placeholder="e.g. WB-MOH-2026-REG-8821">
 
-    <p class="toggle-text">
-      <span id="toggleMsg">Don’t have an account?</span>
-      <a href="#" onclick="toggleMode()" id="toggleLink">Register</a>
-    </p>
+            <label class="field-label">Facility Address (Street / City)</label>
+            <input type="text" id="regAddress" class="form-input" placeholder="e.g. 45 Park Street, Central District, Kolkata">
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+              <div>
+                <label class="field-label">Latitude (GPS)</label>
+                <input type="number" step="any" id="regLat" class="form-input" placeholder="e.g. 22.5550">
+              </div>
+              <div>
+                <label class="field-label">Longitude (GPS)</label>
+                <input type="number" step="any" id="regLng" class="form-input" placeholder="e.g. 88.3510">
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-subtle" id="fetchLocBtn" onclick="fetchCurrentFacilityGPS()" style="width: 100%; margin-top: 8px; font-size: 0.78rem; padding: 7px 10px; border: 1px dashed var(--teal-blue); color: var(--teal-dark);">
+              Fetch My Location (Auto-Detect GPS Coordinates)
+            </button>
+          </div>
+        </div>
+
+        <!-- Super Admin Info Note -->
+        <div id="adminNoticeBox" style="display: none; background: var(--bg-surface-subtle); border-left: 3px solid var(--desert-sun); padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; font-size: 0.78rem; color: var(--text-body); line-height: 1.5;">
+          <strong>Health Regulatory Authority:</strong> Official administrative credentials required to access the Super Admin governance portal.
+        </div>
+
+        <!-- Common Fields -->
+        <label class="field-label" id="emailFieldLabel">Email Address</label>
+        <input type="email" id="authEmail" class="form-input" required placeholder="patient@lifeline.com">
+
+        <label class="field-label">Password</label>
+        <input type="password" id="authPassword" class="form-input" required placeholder="••••••••">
+
+        <button type="submit" class="btn btn-mint" style="width: 100%; padding: 12px; font-size: 0.92rem; font-weight: 700;" id="authSubmitButton">
+          Sign In &rarr;
+        </button>
+      </form>
+
+      <!-- Toggle Mode (Citizen & Hospital) -->
+      <div id="toggleModeContainer" style="text-align: center; margin-top: 14px; font-size: 0.84rem; color: var(--text-muted);">
+        <span id="modePromptText">Don't have an account?</span>
+        <a href="#" onclick="toggleMode(event)" id="modeToggleLink" style="color: var(--teal-dark); font-weight: 700; margin-left: 4px; text-decoration: none;">
+          Register here
+        </a>
+      </div>
+
+      <!-- Quick Demo Sign-In Shelf -->
+      <div class="demo-shelf">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <strong style="color: var(--charcoal-deep); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">1-Click Demo Logins:</strong>
+          <span style="font-size: 0.72rem; color: var(--text-muted);">Instant Auto-Fill &amp; Login</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+          <!-- Patient Demo -->
+          <div class="demo-card" onclick="quickDemoLogin('patient')">
+            <span class="demo-card-title">Shivam Kumar</span>
+            <span class="demo-card-sub">Citizen patient profile</span>
+            <span class="demo-card-action">Sign In &rarr;</span>
+          </div>
+
+          <!-- Hospital Demo -->
+          <div class="demo-card" onclick="quickDemoLogin('hospital')">
+            <span class="demo-card-title">Hospital SaaS</span>
+            <span class="demo-card-sub">Metro Heart ERP</span>
+            <span class="demo-card-action">Sign In &rarr;</span>
+          </div>
+
+          <!-- Admin Demo -->
+          <div class="demo-card" onclick="quickDemoLogin('admin')">
+            <span class="demo-card-title">Super Admin</span>
+            <span class="demo-card-sub">Health Authority</span>
+            <span class="demo-card-action">Sign In &rarr;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Return Link -->
+      <div style="text-align: center; margin-top: 16px;">
+        <a href="emergency.html" style="color: var(--mint-dark); font-size: 0.82rem; font-weight: 600; text-decoration: underline;">
+          Return to Emergency Hospital Finder &rarr;
+        </a>
+      </div>
+    </div>
   </div>
 
-  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    let activeRole = 'patient'; // 'patient', 'hospital', or 'admin'
+    let isRegisterMode = false;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get('tab');
+      const mode = urlParams.get('mode');
+
+      if (tab === 'hospital') {
+        selectRole('hospital');
+      } else if (tab === 'admin') {
+        selectRole('admin');
+      } else {
+        selectRole('patient');
+      }
+
+      if (mode === 'register' && activeRole !== 'admin') {
+        toggleMode();
+      }
+    });
+
+    function selectRole(role) {
+      activeRole = role;
+      const tabUser = document.getElementById('tabUserBtn');
+      const tabHosp = document.getElementById('tabHospBtn');
+      const tabAdmin = document.getElementById('tabAdminBtn');
+      const hospExtra = document.getElementById('hospitalExtraFields');
+      const patExtra = document.getElementById('patientExtraFields');
+      const nameLabel = document.getElementById('nameFieldLabel');
+      const emailInput = document.getElementById('authEmail');
+      const adminNotice = document.getElementById('adminNoticeBox');
+      const toggleContainer = document.getElementById('toggleModeContainer');
+
+      // Update tab active classes
+      tabUser.classList.toggle('active', role === 'patient');
+      tabHosp.classList.toggle('active', role === 'hospital');
+      tabAdmin.classList.toggle('active', role === 'admin');
+
+      if (role === 'admin') {
+        isRegisterMode = false;
+        document.getElementById('registerFieldsBox').style.display = 'none';
+        adminNotice.style.display = 'block';
+        toggleContainer.style.display = 'none';
+        emailInput.placeholder = 'admin@lifeline.org';
+        document.getElementById('emailFieldLabel').innerText = 'Official Admin Email';
+        document.getElementById('authSubmitButton').innerText = 'Sign In &rarr;';
+      } else if (role === 'hospital') {
+        adminNotice.style.display = 'none';
+        toggleContainer.style.display = 'block';
+        hospExtra.style.display = isRegisterMode ? 'block' : 'none';
+        patExtra.style.display = 'none';
+        nameLabel.innerText = 'Hospital Facility Name';
+        emailInput.placeholder = 'metro@hospital.com';
+        document.getElementById('emailFieldLabel').innerText = 'Hospital Administrator Email';
+      } else {
+        adminNotice.style.display = 'none';
+        toggleContainer.style.display = 'block';
+        hospExtra.style.display = 'none';
+        patExtra.style.display = isRegisterMode ? 'block' : 'none';
+        nameLabel.innerText = 'Full Name';
+        emailInput.placeholder = 'patient@lifeline.com';
+        document.getElementById('emailFieldLabel').innerText = 'Citizen Email Address';
+      }
+    }
+
+    function fetchCurrentFacilityGPS() {
+      const btn = document.getElementById('fetchLocBtn');
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser. Please enter Latitude and Longitude manually.");
+        return;
+      }
+      btn.innerText = "Detecting Facility GPS...";
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          document.getElementById('regLat').value = pos.coords.latitude.toFixed(6);
+          document.getElementById('regLng').value = pos.coords.longitude.toFixed(6);
+          btn.innerText = "Facility GPS Detected ✓";
+          setTimeout(() => { btn.innerText = "Fetch My Location (Auto-Detect GPS Coordinates)"; }, 3500);
+        },
+        err => {
+          alert("Could not fetch GPS: " + err.message + ". You can still type Latitude & Longitude manually.");
+          btn.innerText = "Fetch My Location (Auto-Detect GPS Coordinates)";
+        }
+      );
+    }
+
+    function toggleMode(e) {
+      if (e) e.preventDefault();
+      if (activeRole === 'admin') return;
+
+      isRegisterMode = !isRegisterMode;
+
+      const regBox = document.getElementById('registerFieldsBox');
+      const submitBtn = document.getElementById('authSubmitButton');
+      const promptText = document.getElementById('modePromptText');
+      const toggleLink = document.getElementById('modeToggleLink');
+      const hospExtra = document.getElementById('hospitalExtraFields');
+      const patExtra = document.getElementById('patientExtraFields');
+
+      if (isRegisterMode) {
+        regBox.style.display = 'block';
+        submitBtn.innerText = activeRole === 'hospital' ? 'Submit Hospital for Verification &rarr;' : 'Create Account &rarr;';
+        promptText.innerText = 'Already have an account?';
+        toggleLink.innerText = 'Sign in here';
+        hospExtra.style.display = activeRole === 'hospital' ? 'block' : 'none';
+        patExtra.style.display = activeRole === 'patient' ? 'block' : 'none';
+      } else {
+        regBox.style.display = 'none';
+        submitBtn.innerText = 'Sign In &rarr;';
+        promptText.innerText = "Don't have an account?";
+        toggleLink.innerText = 'Register here';
+      }
+    }
+
+    async function quickDemoLogin(role) {
+      if (role === 'hospital') {
+        selectRole('hospital');
+        document.getElementById('authEmail').value = 'metro@hospital.com';
+        document.getElementById('authPassword').value = 'admin123';
+      } else if (role === 'admin') {
+        selectRole('admin');
+        document.getElementById('authEmail').value = 'admin@lifeline.org';
+        document.getElementById('authPassword').value = 'admin123';
+      } else {
+        selectRole('patient');
+        document.getElementById('authEmail').value = 'patient@lifeline.com';
+        document.getElementById('authPassword').value = 'password123';
+      }
+
+      if (isRegisterMode) {
+        toggleMode();
+      }
+
+      // Automatically submit form for instant 1-click evaluation
+      await executeLogin();
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      await executeLogin();
+    }
+
+    async function executeLogin() {
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value;
+
+      try {
+        if (!isRegisterMode) {
+          // SIGN IN
+          if (activeRole === 'hospital') {
+            const res = await API.loginHospital(email, password);
+            API.setSession({
+              token: res.token,
+              role: res.role || 'ROLE_HOSPITAL_ADMIN',
+              name: res.name,
+              email: res.email,
+              id: res.id
+            });
+            window.location.replace('hospital-dashboard.html');
+          } else {
+            // Patient or Super Admin
+            const res = await API.loginUser(email, password);
+            API.setSession({
+              token: res.token,
+              role: res.role,
+              name: res.name,
+              email: res.email,
+              id: res.id
+            });
+
+            if (res.role === 'ROLE_SUPER_ADMIN') {
+              window.location.replace('admin.html');
+            } else {
+              window.location.replace('emergency.html');
+            }
+          }
+        } else {
+          // REGISTER
+          if (activeRole === 'hospital') {
+            const rawLat = parseFloat(document.getElementById('regLat') ? document.getElementById('regLat').value : '');
+            const rawLng = parseFloat(document.getElementById('regLng') ? document.getElementById('regLng').value : '');
+            const payload = {
+              name: document.getElementById('regName').value,
+              email: email,
+              password: password,
+              contactNumber: document.getElementById('regHospPhone').value,
+              licenseNumber: document.getElementById('regLicense').value,
+              address: document.getElementById('regAddress').value,
+              latitude: !isNaN(rawLat) ? rawLat : 22.5600,
+              longitude: !isNaN(rawLng) ? rawLng : 88.3550,
+              totalBeds: 50,
+              availableBeds: 20,
+              totalICUBeds: 10,
+              availableICUBeds: 4,
+              ventilators: 5,
+              oxygenCylinders: 20,
+              ambulances: 3,
+              cardiacMonitors: 6
+            };
+            const res = await API.registerHospital(payload);
+            alert("Hospital registration submitted successfully!\n\nStatus: Pending Super Admin verification. You will be able to log in once your medical license is approved.");
+            toggleMode();
+          } else {
+            const payload = {
+              name: document.getElementById('regName').value,
+              email: email,
+              password: password,
+              phone: document.getElementById('regPhone').value,
+              knownConditions: document.getElementById('regConditions').value
+            };
+            const res = await API.registerUser(payload);
+            API.setSession({
+              token: res.token,
+              role: res.role || 'ROLE_USER',
+              name: res.name,
+              email: res.email,
+              id: res.id
+            });
+            window.location.replace('emergency.html');
+          }
+        }
+      } catch (err) {
+        alert("Authentication Notice: " + err.message);
+      }
+    }
+  </script>
 </body>
 </html>

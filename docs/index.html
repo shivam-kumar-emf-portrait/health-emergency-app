@@ -1,21 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Health Assist</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lifeline | Emergency Hospital Matching &amp; Healthcare SaaS Network</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="container center">
-    <h1>Health Assist</h1>
-    <p class="tagline">
-      Reduce panic. Act fast in emergencies.
-    </p>
 
-    <div class="btn-group">
-      <a href="login.html" class="btn primary">Normal Mode</a>
-      <a href="login.html" class="btn danger">Emergency Mode</a>
-    </div>
+  <div class="container">
+    <!-- Navbar -->
+    <header class="navbar-minimal">
+      <a href="index.html" class="brand-title">
+        <span class="brand-dot"></span>
+        <span style="font-weight: 800; color: var(--charcoal-deep); font-size: 1.15rem;">Lifeline</span>
+        <span style="font-weight: 600; color: var(--desert-sun); font-size: 0.9rem; margin-left: 4px;">Emergency Network</span>
+      </a>
+
+      <div class="nav-links" id="homeNavLinks" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="emergency.html" class="btn btn-desert" style="font-size: 0.85rem; padding: 8px 18px; font-weight: 700;">
+          Emergency Mode
+        </a>
+        <a href="chat.html" class="btn btn-subtle" style="font-size: 0.85rem; padding: 8px 16px;">
+          Doctor Chat
+        </a>
+        <span id="homeAuthSlot">
+          <a href="login.html" class="btn btn-mint" style="font-size: 0.85rem; padding: 8px 16px;">
+            Sign In
+          </a>
+        </span>
+      </div>
+    </header>
+
+    <!-- Top Priority Hero Section: Emergency Response -->
+    <section class="hero-wrapper" style="margin-bottom: 36px;">
+      <div>
+        <div class="hero-tag">
+          <span>Emergency Care &bull; Fast Hospital Beds &amp; Doctors</span>
+        </div>
+
+        <h1 class="hero-heading" style="font-size: 2.2rem; line-height: 1.25; margin-bottom: 14px; color: var(--charcoal-deep);">
+          Find the Right Hospital in an Emergency
+        </h1>
+
+        <p class="hero-description" style="font-size: 0.98rem; line-height: 1.6; color: var(--text-body); margin-bottom: 22px;">
+          In an emergency, every minute counts. Lifeline finds the closest open hospital with the right doctor on duty, open ICU beds, and life-saving equipment ready for you.
+        </p>
+
+        <!-- Primary Emergency CTAs -->
+        <div class="hero-actions" style="margin-bottom: 22px;">
+          <a href="emergency.html" class="btn btn-desert" style="font-size: 0.98rem; padding: 13px 26px; font-weight: 700;">
+            Find Emergency Hospital Now &rarr;
+          </a>
+          <a href="chat.html" class="btn btn-teal" style="font-size: 0.95rem; padding: 13px 22px; font-weight: 600;">
+            Ask Doctor (Health Chat) &rarr;
+          </a>
+          <a href="login.html" class="btn btn-subtle" style="font-size: 0.92rem; padding: 13px 18px;">
+            Sign In
+          </a>
+        </div>
+
+        <!-- Immediate Emergency Situation Quick Selection -->
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 16px 20px; box-shadow: var(--shadow-sm);">
+          <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">
+            Choose Your Emergency:
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <a href="emergency.html?type=CARDIAC" class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 13px; font-weight: 600;">Heart Attack / Chest Pain</a>
+            <a href="emergency.html?type=STROKE" class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 13px; font-weight: 600;">Brain Stroke / Weakness</a>
+            <a href="emergency.html?type=TRAUMA" class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 13px; font-weight: 600;">Accident / Major Injury</a>
+            <a href="emergency.html?type=RESPIRATORY" class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 13px; font-weight: 600;">Breathing Problem</a>
+            <a href="emergency.html?type=BLEEDING" class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 13px; font-weight: 600;">Heavy Bleeding</a>
+            <a href="emergency.html?type=PREGNANCY" class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 13px; font-weight: 600;">Pregnancy / Delivery</a>
+            <a href="emergency.html?type=PEDIATRIC" class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 13px; font-weight: 600;">Child Emergency</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regional Hospital Capacity Panel -->
+      <div class="readiness-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Live Hospital Beds &amp; Doctors</div>
+            <div class="panel-subtitle">Real-time status across verified hospitals</div>
+          </div>
+          <span class="status-indicator-live">
+            <span class="pulse-dot"></span> Live Status
+          </span>
+        </div>
+
+        <div class="metrics-summary-strip">
+          <div class="strip-metric">
+            <span class="strip-val" id="metricActiveHosp">6</span>
+            <span class="strip-label">Hospitals</span>
+          </div>
+          <div class="strip-metric">
+            <span class="strip-val text-mint" id="metricTotalBeds">220+</span>
+            <span class="strip-label">General Beds</span>
+          </div>
+          <div class="strip-metric">
+            <span class="strip-val text-teal" id="metricIcuBeds">42</span>
+            <span class="strip-label">ICU Beds</span>
+          </div>
+          <div class="strip-metric">
+            <span class="strip-val text-desert" id="metricSpecialists">14</span>
+            <span class="strip-label">Doctors on Duty</span>
+          </div>
+        </div>
+
+        <div class="network-hospital-list">
+          <div class="network-hospital-row">
+            <div>
+              <div class="hosp-name-text">Metro Heart &amp; Emergency Institute</div>
+              <div class="hosp-sub-text">Heart Specialist &bull; 6 ICU Beds &bull; 8 Ventilators</div>
+            </div>
+            <div class="hosp-status-pill pill-open">Open for Intake</div>
+          </div>
+          <div class="network-hospital-row">
+            <div>
+              <div class="hosp-name-text">Apex Neuro &amp; Trauma Institute</div>
+              <div class="hosp-sub-text">Brain &amp; Accident Care &bull; 8 ICU Beds &bull; 10 Ventilators</div>
+            </div>
+            <div class="hosp-status-pill pill-open">Open for Intake</div>
+          </div>
+          <div class="network-hospital-row">
+            <div>
+              <div class="hosp-name-text">LifeLine Global Super-Specialty</div>
+              <div class="hosp-sub-text">Emergency Care &bull; 9 ICU Beds &bull; 14 Ventilators</div>
+            </div>
+            <div class="hosp-status-pill pill-open">Open for Intake</div>
+          </div>
+        </div>
+
+        <div class="panel-footer-note">
+          <span>Updated live directly by hospitals</span>
+          <a href="emergency.html" class="link-subtle">See Hospital List &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lower Section: Product Modules & How to Use -->
+    <section style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 28px; margin-bottom: 36px; box-shadow: var(--shadow-sm);">
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--charcoal-deep); margin-bottom: 6px;">
+        How Lifeline Helps You in 3 Easy Steps
+      </h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 20px;">
+        Simple steps to get quick medical care when you need it most.
+      </p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px;">
+        <div>
+          <div style="font-size: 0.78rem; font-weight: 800; color: var(--teal-blue); margin-bottom: 4px;">STEP 1</div>
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--charcoal-deep); margin-bottom: 6px;">Choose Location &amp; Emergency</h4>
+          <p style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+            Use your phone GPS or search any area (Park Street, Howrah, Esplanade, Salt Lake) and select what happened.
+          </p>
+        </div>
+        <div>
+          <div style="font-size: 0.78rem; font-weight: 800; color: var(--mint-dark); margin-bottom: 4px;">STEP 2</div>
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--charcoal-deep); margin-bottom: 6px;">Compare Closest vs Best Hospital</h4>
+          <p style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+            See the 3 closest hospitals and the 3 best equipped hospitals with doctors, ICU beds, and equipment. Closed hospitals are hidden automatically.
+          </p>
+        </div>
+        <div>
+          <div style="font-size: 0.78rem; font-weight: 800; color: var(--desert-dark); margin-bottom: 4px;">STEP 3</div>
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--charcoal-deep); margin-bottom: 6px;">Travel Safely &amp; Alert Hospital</h4>
+          <p style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+            Get simple first aid instructions while traveling, and notify the hospital emergency room in advance so doctors are ready.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product Modules Grid -->
+    <section style="margin-bottom: 40px;">
+      <div style="margin-bottom: 20px;">
+        <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--charcoal-deep); margin-bottom: 6px;">
+          What You Can Do on Lifeline
+        </h2>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">
+          Simple tools for patients, families, and hospitals.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Card 1: Emergency Matcher -->
+        <div class="matte-card" style="border-top: 3px solid var(--desert-sun);">
+          <div>
+            <span class="card-kicker text-desert">Fast Response</span>
+            <h3 class="card-title">Find Emergency Hospital</h3>
+            <p class="card-desc">
+              Immediate help for chest pain, stroke, accidents, and breathing issues. See the 3 closest hospitals and the 3 best hospitals with maps, phone numbers, and emergency alerts.
+            </p>
+          </div>
+          <a href="emergency.html" class="btn btn-desert">
+            Find Hospital Now &rarr;
+          </a>
+        </div>
+
+        <!-- Card 2: AI Triage -->
+        <div class="matte-card" style="border-top: 3px solid var(--teal-blue);">
+          <div>
+            <span class="card-kicker text-teal">Doctor Advice</span>
+            <h3 class="card-title">Health &amp; Fitness Chat</h3>
+            <p class="card-desc">
+              Talk with our private AI Health Assistant in simple English. Ask about body symptoms, first aid, daily fitness exercises, and healthy food diet.
+            </p>
+          </div>
+          <a href="chat.html" class="btn btn-teal">
+            Chat with Doctor &rarr;
+          </a>
+        </div>
+
+        <!-- Card 3: Hospital SaaS ERP -->
+        <div class="matte-card" style="border-top: 3px solid var(--mint-green);">
+          <div>
+            <span class="card-kicker text-mint">Hospital Staff</span>
+            <h3 class="card-title">Hospital SaaS Portal</h3>
+            <p class="card-desc">
+              For hospital staff: manage patient admissions, bed and ICU availability, doctors on duty, and hospital open/closed status.
+            </p>
+          </div>
+          <a href="login.html?tab=hospital" class="btn btn-mint">
+            Hospital Staff Login &rarr;
+          </a>
+        </div>
+
+        <!-- Card 4: Patient Portal -->
+        <div class="matte-card" style="border-top: 3px solid var(--border-medium);">
+          <div>
+            <span class="card-kicker text-charcoal">Patient Account</span>
+            <h3 class="card-title">Patient Health Profile</h3>
+            <p class="card-desc">
+              Save your medical history, view your private health chat conversations, and keep emergency contacts safe in one place.
+            </p>
+          </div>
+          <a href="login.html?tab=patient" id="homePatientCardBtn" class="btn btn-subtle">
+            Patient Account &rarr;
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="padding: 24px 0; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.85rem; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <span>Lifeline Healthcare Emergency Response Network &bull; Regional Care Coordination</span>
+      </div>
+      <div>
+        <span>Institutional Hospital Portals &bull; Patient Records Management</span>
+      </div>
+    </footer>
   </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const slot = document.getElementById('homeAuthSlot');
+      if (!slot) return;
+      const session = API.getSession();
+      if (!session) {
+        slot.innerHTML = `
+          <a href="login.html" class="btn btn-mint" style="font-size: 0.85rem; padding: 8px 16px;">Sign In</a>
+        `;
+        return;
+      }
+      if (session.role === 'ROLE_HOSPITAL_ADMIN') {
+        slot.innerHTML = `
+          <a href="hospital-dashboard.html" class="btn btn-mint" style="font-size: 0.85rem; padding: 8px 16px;">Hospital ERP</a>
+          <button class="btn btn-subtle" style="font-size: 0.85rem; padding: 8px 14px;" onclick="API.logout('index.html')">Sign Out</button>
+        `;
+      } else if (session.role === 'ROLE_SUPER_ADMIN') {
+        slot.innerHTML = `
+          <a href="admin.html" class="btn btn-teal" style="font-size: 0.85rem; padding: 8px 16px;">Admin Portal</a>
+          <button class="btn btn-subtle" style="font-size: 0.85rem; padding: 8px 14px;" onclick="API.logout('index.html')">Sign Out</button>
+        `;
+      } else {
+        slot.innerHTML = `
+          <a href="profile.html" class="badge badge-teal" style="text-decoration: none; border: 1px solid var(--teal-blue); font-size: 0.82rem; padding: 6px 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;" title="Open Your Profile, Medical Records & Hospital Ratings">
+            ${session.name || 'Shivam Kumar'} &nbsp;✎
+          </a>
+          <button class="btn btn-subtle" style="font-size: 0.85rem; padding: 8px 14px;" onclick="API.logout('index.html')">Sign Out</button>
+        `;
+        const patientBtn = document.getElementById('homePatientCardBtn');
+        if (patientBtn) {
+          patientBtn.href = "profile.html";
+          patientBtn.innerText = "My Health Profile →";
+        }
+      }
+    });
+  </script>
 </body>
 </html>

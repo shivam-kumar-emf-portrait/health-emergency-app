@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health &amp; Fitness Chat | Lifeline</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .chat-layout {
+      max-width: 860px;
+      margin: 0 auto;
+      height: calc(100vh - 120px);
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+
+    .chat-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-surface);
+    }
+
+    .chat-messages-area {
+      flex-grow: 1;
+      padding: 22px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: var(--bg-canvas);
+    }
+
+    .chat-bubble {
+      max-width: 80%;
+      padding: 13px 18px;
+      border-radius: 14px;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    .bubble-assistant {
+      align-self: flex-start;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      border-bottom-left-radius: 4px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .bubble-user {
+      align-self: flex-end;
+      background: var(--teal-blue);
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 2px 6px rgba(13, 148, 136, 0.25);
+    }
+
+    .chat-input-bar {
+      padding: 14px 18px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chat-input-field {
+      flex-grow: 1;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-muted);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text-main);
+      font-size: 0.92rem;
+      outline: none;
+      resize: none;
+      height: 46px;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .chat-input-field:focus {
+      border-color: var(--teal-blue);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+    }
+
+    .quick-chips-row {
+      display: flex;
+      gap: 8px;
+      padding: 10px 18px;
+      background: var(--bg-surface);
+      overflow-x: auto;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .symptom-chip {
+      background: var(--bg-surface-subtle);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-body);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .symptom-chip:hover {
+      background: var(--teal-soft);
+      color: var(--teal-dark);
+      border-color: var(--teal-border);
+    }
+
+    .typing-indicator {
+      display: none;
+      align-self: flex-start;
+      padding: 10px 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      gap: 6px;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--mint-green);
+      animation: typing 1.4s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    /* Login Modal Overlay */
+    .login-modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .login-modal-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      max-width: 440px;
+      width: 100%;
+      padding: 28px;
+      box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.2);
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container" style="padding-bottom: 0;">
+    <!-- Simple Top Navigation -->
+    <header class="navbar-minimal" style="margin-bottom: 14px;">
+      <a href="index.html" class="brand-title">
+        <span class="brand-dot"></span>
+        <span style="font-weight: 800; color: var(--charcoal-deep); font-size: 1.15rem;">Lifeline</span>
+        <span style="font-weight: 700; color: var(--teal-blue); font-size: 0.95rem; margin-left: 4px;">Health Chat</span>
+      </a>
+      <div class="nav-links" id="chatNavLinks">
+        <a href="emergency.html" class="btn btn-desert" style="font-size: 0.85rem; padding: 8px 16px;">
+          Find Emergency Hospital
+        </a>
+        <a href="index.html" class="btn btn-subtle" style="font-size: 0.85rem; padding: 8px 16px;">Home</a>
+        <span id="chatUserAuthSlot"></span>
+      </div>
+    </header>
+
+    <div class="chat-layout">
+      <!-- Chat Header -->
+      <div class="chat-header">
+        <div>
+          <h2 style="font-size: 1.1rem; font-weight: 800; color: var(--charcoal-dark); margin: 0 0 2px 0;">
+            Health &amp; Fitness Assistant
+          </h2>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">
+            Ask questions about health, body symptoms, fitness, and diet in simple words
+          </span>
+        </div>
+
+        <div id="modeStatusBadge">
+          <span class="badge badge-mint">Private Chat</span>
+        </div>
+      </div>
+
+      <!-- Messages Area -->
+      <div class="chat-messages-area" id="chatWindow">
+        <div class="chat-bubble bubble-assistant">
+          <strong>Health Assistant:</strong><br>
+          Hello! I am here to help you with your health, body symptoms, exercise, and diet questions. 
+          <br><br>
+          What can I help you with today?
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span style="margin-left: 6px;">Thinking about your health question...</span>
+        </div>
+      </div>
+
+      <!-- Quick Health Chips (Zero emojis) -->
+      <div class="quick-chips-row">
+        <span style="font-size: 0.76rem; color: var(--text-muted); display: flex; align-items: center; font-weight: 600;">Common Topics:</span>
+        <button class="symptom-chip" onclick="sendQuickPrompt('I have mild headache since yesterday, what should I do?')">Mild headache</button>
+        <button class="symptom-chip" onclick="sendQuickPrompt('What are some simple daily exercises to stay fit at home?')">Daily fitness exercise</button>
+        <button class="symptom-chip" onclick="sendQuickPrompt('My throat feels sore and I have a low fever')">Sore throat and fever</button>
+        <button class="symptom-chip" onclick="sendQuickPrompt('What is a healthy balanced diet for good digestion?')">Healthy food diet</button>
+      </div>
+
+      <!-- Input Bar -->
+      <div class="chat-input-bar">
+        <textarea id="userInput" class="chat-input-field" placeholder="Ask your health or fitness question here in simple English..." onkeydown="handleKeyPress(event)"></textarea>
+        <button class="btn btn-mint" onclick="sendMessage()" id="sendBtn" style="padding: 12px 20px; font-weight: 700;">
+          Send &rarr;
+        </button>
+      </div>
+
+      <!-- Login Required Modal Popup -->
+      <div id="loginRequiredModal" class="login-modal-overlay" style="display: none;">
+        <div class="login-modal-card">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+            <span class="brand-dot brand-dot-desert"></span>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--charcoal-deep); margin: 0;">
+              Please Log In to Use Health Chat
+            </h3>
+          </div>
+          <p style="font-size: 0.86rem; color: var(--text-body); line-height: 1.55; margin-bottom: 20px;">
+            To keep your health discussions private and remember your past questions, you must log in with your patient account.
+          </p>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <a href="index.html" class="btn btn-subtle" style="padding: 9px 16px; font-size: 0.85rem;">
+              Back to Home
+            </a>
+            <a href="login.html?tab=patient&redirect=chat.html" class="btn btn-mint" style="padding: 9px 18px; font-size: 0.85rem; font-weight: 700;">
+              Log In Now &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    const session = API.getSession();
+
+    // Cross-role guard: Hospital accounts cannot access patient chat
+    if (session && session.role === 'ROLE_HOSPITAL_ADMIN') {
+      alert("Access Denied: You are signed in as Hospital Staff. The Health Assistant is for patient care. Please use your Hospital ERP.");
+      window.location.replace('hospital-dashboard.html');
+      throw new Error("Access Denied: Hospital role cannot access patient chat");
+    }
+
+    let conversationHistory = [];
+    const authToken = (session && session.token && session.role !== 'ROLE_HOSPITAL_ADMIN') ? session.token : null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const modal = document.getElementById('loginRequiredModal');
+      const input = document.getElementById('userInput');
+      const sendBtn = document.getElementById('sendBtn');
+      const badge = document.getElementById('modeStatusBadge');
+      const slot = document.getElementById('chatUserAuthSlot');
+
+      if (slot) {
+        if (authToken) {
+          slot.innerHTML = `
+            <a href="profile.html" class="badge badge-teal" style="text-decoration: none; border: 1px solid var(--teal-blue); font-size: 0.8rem; padding: 6px 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;" title="Open Your Profile, Medical Records & Hospital Ratings">
+              ${escapeHtml(session.name || 'Shivam Kumar')} &nbsp;✎
+            </a>
+            <button class="btn btn-subtle" style="font-size: 0.82rem; padding: 6px 12px;" onclick="API.logout('chat.html')">Sign Out</button>
+          `;
+        } else {
+          slot.innerHTML = `
+            <a href="login.html?tab=patient&redirect=chat.html" class="btn btn-mint" style="font-size: 0.82rem; padding: 6px 14px;">Sign In</a>
+          `;
+        }
+      }
+
+      if (!authToken) {
+        // User is not logged in: show login popup
+        modal.style.display = 'flex';
+        input.disabled = true;
+        sendBtn.disabled = true;
+        badge.innerHTML = `<span class="badge badge-desert">Sign In Required</span>`;
+      } else {
+        // User is logged in: enable chat and load private history
+        modal.style.display = 'none';
+        input.disabled = false;
+        sendBtn.disabled = false;
+        badge.innerHTML = `<span class="badge badge-mint">Private Chat &bull; Memory Active</span>`;
+        loadSavedHistory();
+      }
+    });
+
+    async function loadSavedHistory() {
+      try {
+        const res = await API.getChatHistory();
+        if (res.history && res.history.length > 0) {
+          const windowEl = document.getElementById('chatWindow');
+          windowEl.innerHTML = '';
+          res.history.forEach(m => {
+            appendBubble(m.role === 'user' ? 'user' : 'assistant', m.content);
+            conversationHistory.push({ role: m.role, content: m.content });
+          });
+        }
+      } catch (err) {
+        console.warn("Could not fetch saved history:", err);
+      }
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function sendQuickPrompt(text) {
+      if (!authToken) {
+        document.getElementById('loginRequiredModal').style.display = 'flex';
+        return;
+      }
+      document.getElementById('userInput').value = text;
+      sendMessage();
+    }
+
+    async function sendMessage() {
+      if (!authToken) {
+        document.getElementById('loginRequiredModal').style.display = 'flex';
+        return;
+      }
+
+      const input = document.getElementById('userInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendBubble('user', text);
+      input.value = '';
+
+      const typing = document.getElementById('typingIndicator');
+      typing.style.display = 'flex';
+      scrollChatToBottom();
+
+      try {
+        const res = await API.sendChatMessage(text, conversationHistory);
+        typing.style.display = 'none';
+
+        if (res && res.reply) {
+          appendBubble('assistant', res.reply);
+          conversationHistory.push({ role: 'user', content: text });
+          conversationHistory.push({ role: 'assistant', content: res.reply });
+        } else if (res && res.error === 'LOGIN_REQUIRED') {
+          document.getElementById('loginRequiredModal').style.display = 'flex';
+        } else {
+          appendBubble('assistant', "I am here to help you. Could you please describe your health question again?");
+        }
+      } catch (err) {
+        typing.style.display = 'none';
+        if (err.message && err.message.includes('401')) {
+          document.getElementById('loginRequiredModal').style.display = 'flex';
+        } else {
+          appendBubble('assistant', "I am your Health and Fitness Assistant. How can I help you with your health, body symptoms, exercises, or diet today?");
+        }
+      }
+
+      scrollChatToBottom();
+    }
+
+    function appendBubble(role, content) {
+      const windowEl = document.getElementById('chatWindow');
+      const typing = document.getElementById('typingIndicator');
+
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble bubble-${role}`;
+
+      const name = role === 'user' ? 'You' : 'Health Assistant';
+      bubble.innerHTML = `<strong>${name}:</strong><br>${escapeHtml(content)}`;
+
+      windowEl.insertBefore(bubble, typing);
+      scrollChatToBottom();
+    }
+
+    function scrollChatToBottom() {
+      const windowEl = document.getElementById('chatWindow');
+      windowEl.scrollTop = windowEl.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/\n/g, '<br>');
+    }
+  </script>
+</body>
+</html>

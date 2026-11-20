@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergency Hospital Finder | Lifeline</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/emergency.css">
+  <style>
+    /* User Profile, History & Feedback Modal Styles */
+    .user-tab-btn {
+      padding: 9px 16px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .user-tab-btn:hover {
+      color: var(--charcoal-deep);
+    }
+    .user-tab-btn.active {
+      color: var(--teal-blue);
+      border-bottom-color: var(--teal-blue);
+    }
+    .clickable-user-profile:hover {
+      filter: brightness(0.95);
+      box-shadow: var(--shadow-sm);
+    }
+    .profile-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin-top: 8px;
+    }
+    .profile-table th {
+      background: #f1f5f9;
+      padding: 8px 10px;
+      text-align: left;
+      font-size: 0.74rem;
+      color: var(--charcoal-deep);
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .profile-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-body);
+      vertical-align: middle;
+    }
+    .em-code {
+    font-size: 0.72rem;
+    font-weight: 800;
+    font-family: monospace;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    padding: 3px 6px;
+    border-radius: 6px;
+    color: var(--charcoal-deep);
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+  .loc-suggestion-item {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .loc-suggestion-item:last-child {
+    border-bottom: none;
+  }
+  .loc-suggestion-item:hover, .loc-suggestion-item.active {
+    background: #f1f5f9;
+  }
+</style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="emergency-topbar">
+      <div class="emergency-logo">
+        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--desert-sun); margin-right:6px;"></span>
+        <span style="font-weight: 800; color: var(--charcoal-deep); font-size: 1.15rem;">Lifeline</span>
+        <span style="font-weight: 700; color: var(--desert-sun); font-size: 0.95rem; margin-left: 6px;">Hospital Finder</span>
+      </div>
+
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <a href="chat.html" class="btn btn-teal" style="font-size: 0.82rem; padding: 7px 14px;">
+          Doctor Chat
+        </a>
+        <a href="index.html" class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 14px;">
+          Home
+        </a>
+        <span id="emAuthSlot"></span>
+      </div>
+    </header>
+
+    <!-- Geolocation & Custom Location Search Card -->
+    <div class="geo-banner" style="display: flex; flex-direction: column; align-items: stretch; gap: 14px; padding: 18px 22px;">
+      <!-- Row 1: Active Location Status + GPS Button -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div class="geo-status-indicator">
+          <span class="geo-ping-dot"></span>
+          <span id="geoCoordsDisplay" style="font-weight: 700; color: var(--charcoal-deep);">
+            Location: <strong>Park Street, Central District</strong> &bull; GPS: <code>22.5550, 88.3510</code>
+          </span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn btn-subtle" onclick="detectUserRealGPS(this)" style="font-size: 0.8rem; padding: 6px 14px;">
+            Use My Current Location
+          </button>
+        </div>
+      </div>
+
+      <!-- Row 2: Search Input Field & Action -->
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <form onsubmit="handleLocationSearchSubmit(event)" style="display: flex; gap: 8px; width: 100%; position: relative;">
+          <div style="position: relative; flex: 1;">
+            <input 
+              type="text" 
+              id="locationSearchInput" 
+              placeholder="Search area, landmark or enter coordinates (e.g. Park Street, Howrah, Salt Lake, Esplanade)..." 
+              autocomplete="off"
+              style="width: 100%; padding: 10px 14px; border: 1px solid var(--border-subtle); border-radius: 8px; font-size: 0.88rem; color: var(--text-main); background: #ffffff;"
+            />
+            <!-- Real-time Location Suggestions Dropdown -->
+            <div id="locationSuggestionsContainer" style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1000; background: #ffffff; border: 1px solid var(--border-subtle); border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08); display: none; max-height: 280px; overflow-y: auto;"></div>
+          </div>
+          <button type="submit" class="btn btn-teal" style="font-size: 0.82rem; padding: 10px 20px; white-space: nowrap; font-weight: 700;">
+            Set Location
+          </button>
+        </form>
+      </div>
+
+      <!-- Row 3: Quick Regional Area Chips -->
+      <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; border-top: 1px solid var(--border-subtle); padding-top: 10px;">
+        <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600; margin-right: 4px;">Common Areas:</span>
+        <button type="button" class="geo-btn active" onclick="setPresetLocation('Park Street, Central District', 22.5550, 88.3510, this)">Park Street</button>
+        <button type="button" class="geo-btn" onclick="setPresetLocation('Esplanade, Central District', 22.5680, 88.3520, this)">Esplanade</button>
+        <button type="button" class="geo-btn" onclick="setPresetLocation('Howrah Station Area', 22.5830, 88.3426, this)">Howrah</button>
+        <button type="button" class="geo-btn" onclick="setPresetLocation('Salt Lake Sector V', 22.5690, 88.4050, this)">Salt Lake</button>
+        <button type="button" class="geo-btn" onclick="setPresetLocation('Shyambazar, North District', 22.5990, 88.3710, this)">Shyambazar</button>
+        <button type="button" class="geo-btn" onclick="setPresetLocation('Alipore, South District', 22.5330, 88.3290, this)">Alipore</button>
+        <button type="button" class="geo-btn" onclick="setPresetLocation('Gariahat, South District', 22.5180, 88.3650, this)">Gariahat</button>
+        <button type="button" class="geo-btn" onclick="setPresetLocation('New Town, Rajarhat', 22.5867, 88.4754, this)">New Town</button>
+      </div>
+    </div>
+
+    <!-- Category Selector -->
+    <div>
+      <h2 class="category-section-title">
+        What is the Emergency?
+      </h2>
+
+      <div class="emergency-types-grid" id="categoryButtonsContainer">
+        <button class="em-type-card selected" onclick="selectEmergencyType('CARDIAC', this)">
+          <span class="em-code">HEART</span>
+          <span class="em-title">Heart Attack</span>
+          <span class="em-desc">Chest pain / Heart Attack</span>
+        </button>
+
+        <button class="em-type-card" onclick="selectEmergencyType('STROKE', this)">
+          <span class="em-code">BRAIN</span>
+          <span class="em-title">Brain Stroke</span>
+          <span class="em-desc">Face drooping / Paralysis</span>
+        </button>
+
+        <button class="em-type-card" onclick="selectEmergencyType('TRAUMA', this)">
+          <span class="em-code">INJURY</span>
+          <span class="em-title">Accident &amp; Injury</span>
+          <span class="em-desc">Major injury / Fracture</span>
+        </button>
+
+        <button class="em-type-card" onclick="selectEmergencyType('RESPIRATORY', this)">
+          <span class="em-code">LUNGS</span>
+          <span class="em-title">Breathing Problem</span>
+          <span class="em-desc">Severe asthma / Choking</span>
+        </button>
+
+        <button class="em-type-card" onclick="selectEmergencyType('BLEEDING', this)">
+          <span class="em-code">BLEED</span>
+          <span class="em-title">Heavy Bleeding</span>
+          <span class="em-desc">Deep cut / Blood loss</span>
+        </button>
+
+        <button class="em-type-card" onclick="selectEmergencyType('PREGNANCY', this)">
+          <span class="em-code">MOM</span>
+          <span class="em-title">Pregnancy / Labor</span>
+          <span class="em-desc">Delivery emergency</span>
+        </button>
+
+        <button class="em-type-card" onclick="selectEmergencyType('PEDIATRIC', this)">
+          <span class="em-code">CHILD</span>
+          <span class="em-title">Child Emergency</span>
+          <span class="em-desc">Baby &amp; child care</span>
+        </button>
+
+        <button class="em-type-card" onclick="selectEmergencyType('GENERAL', this)">
+          <span class="em-code">GENERAL</span>
+          <span class="em-title">Other Emergency</span>
+          <span class="em-desc">General urgent care</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Algorithm Criteria Banner -->
+    <div id="criteriaSummaryBanner" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px 20px; margin-bottom: 16px; font-size: 0.9rem; color: var(--text-body); box-shadow: var(--shadow-sm);">
+      Finding open hospitals near you with doctors and beds ready...
+    </div>
+
+    <!-- Transparent Emergency Scoring Logic Explainer -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px 18px; margin-bottom: 24px; box-shadow: var(--shadow-sm);">
+      <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleScoringGuide()">
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-weight: 700; color: var(--charcoal-deep); font-size: 0.92rem;">
+            How We Choose the Best Hospital For You
+          </span>
+          <span class="badge badge-desert" style="font-size: 0.72rem;">Score Out of 100</span>
+        </div>
+        <span id="scoringGuideArrow" style="font-size: 0.8rem; font-weight: 700; color: var(--teal-dark);">See How Score Works &darr;</span>
+      </div>
+
+      <div id="scoringGuideDetails" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-subtle); font-size: 0.84rem; color: var(--text-body); line-height: 1.6;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+          <div style="background: var(--bg-canvas); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+            <strong style="color: var(--teal-dark); display: block; margin-bottom: 4px;">1. Right Doctor on Duty (35 Points)</strong>
+            <span style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; display: block;">The right specialist is ready right now (Heart doctor for heart attack, Brain doctor for stroke, Surgeon for accidents).</span>
+          </div>
+          <div style="background: var(--bg-canvas); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+            <strong style="color: var(--mint-dark); display: block; margin-bottom: 4px;">2. ICU Beds Ready (20 Points)</strong>
+            <span style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; display: block;">Open ICU beds ready so there is no delay when you reach the hospital.</span>
+          </div>
+          <div style="background: var(--bg-canvas); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+            <strong style="color: var(--desert-dark); display: block; margin-bottom: 4px;">3. Medical Equipment (18 Points)</strong>
+            <span style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; display: block;">Ventilators, heart monitors, oxygen cylinders, and standby ambulances ready.</span>
+          </div>
+          <div style="background: var(--bg-canvas); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+            <strong style="color: var(--charcoal-deep); display: block; margin-bottom: 4px;">4. General Beds (15 Points)</strong>
+            <span style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; display: block;">Available hospital beds so the patient can be admitted immediately.</span>
+          </div>
+          <div style="background: var(--bg-canvas); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+            <strong style="color: var(--charcoal-deep); display: block; margin-bottom: 4px;">5. Closer Distance (12 Points)</strong>
+            <span style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; display: block;">Hospitals closer to you get extra points so you travel less.</span>
+          </div>
+        </div>
+        <div style="margin-top: 10px; font-size: 0.78rem; color: var(--text-muted); background: var(--bg-canvas); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-subtle);">
+          <strong>Important Rule:</strong> If a hospital is full or closed, it is hidden automatically.
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. Recommended Hospitals Section -->
+    <div style="margin-bottom: 32px;">
+      <div class="results-column-header">
+        <h2>
+          <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--mint-dark);">Recommended</span>
+          <span>Best Emergency Hospitals for You</span>
+          <span style="font-size: 0.82rem; font-weight: 600; color: var(--desert-dark); margin-left: 8px;">Ranked by Doctors, ICU Beds &amp; Proximity</span>
+        </h2>
+        <span class="badge badge-desert">Readiness Score</span>
+      </div>
+      <div class="hospital-cards-grid" id="bestHospitalsContainer"></div>
+    </div>
+
+    <!-- 2. Nearest Hospitals Section (Closest by Distance) -->
+    <div style="margin-bottom: 32px;">
+      <div class="results-column-header">
+        <h2>
+          <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--teal-dark);">Closest By Distance</span>
+          <span>Nearest Open Emergency Hospitals</span>
+          <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); margin-left: 8px;">Sorted Strictly by Real Road Distance</span>
+        </h2>
+        <span class="badge badge-teal">Shortest Travel Time</span>
+      </div>
+      <div class="hospital-cards-grid" id="nearestHospitalsContainer"></div>
+    </div>
+  </div>
+
+  <!-- Standard Details & Alert Modal -->
+  <div class="modal-overlay" id="hospitalModalOverlay">
+    <div class="modal-content-box">
+      <button class="modal-close-btn" onclick="closeModal()">&times;</button>
+      <div id="modalContentInner"></div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    let currentLat = 22.5550;
+    let currentLng = 88.3510;
+    let currentLocationName = "Park Street, Central District";
+    let selectedCategory = 'CARDIAC';
+    let currentHospitalsData = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderEmergencyAuthHeader();
+      initLocationSuggestions();
+      runSearch();
+    });
+
+    function renderEmergencyAuthHeader() {
+      const slot = document.getElementById('emAuthSlot');
+      if (!slot) return;
+      const session = API.getSession();
+      if (!session) {
+        slot.innerHTML = `<a href="login.html" class="btn btn-mint" style="font-size: 0.82rem; padding: 7px 14px;">Sign In</a>`;
+        return;
+      }
+      if (session.role === 'ROLE_HOSPITAL_ADMIN') {
+        slot.innerHTML = `
+          <a href="hospital-dashboard.html" class="btn btn-mint" style="font-size: 0.82rem; padding: 7px 14px;">Hospital ERP</a>
+          <button class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 14px;" onclick="API.logout('emergency.html')">Sign Out</button>
+        `;
+      } else if (session.role === 'ROLE_SUPER_ADMIN') {
+        slot.innerHTML = `
+          <a href="admin.html" class="btn btn-teal" style="font-size: 0.82rem; padding: 7px 14px;">Admin Portal</a>
+          <button class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 14px;" onclick="API.logout('emergency.html')">Sign Out</button>
+        `;
+      } else {
+        slot.innerHTML = `
+          <a href="profile.html" class="badge badge-teal clickable-user-profile" style="text-decoration: none; border: 1px solid var(--teal-blue); font-size: 0.82rem; padding: 6px 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;" title="Open Your Profile, Medical Records & Hospital Ratings">
+            ${escapeHtml(session.name || 'Shivam Kumar')} &nbsp;✎
+          </a>
+          <button class="btn btn-subtle" style="font-size: 0.82rem; padding: 7px 14px;" onclick="API.logout('emergency.html')">Sign Out</button>
+        `;
+      }
+    }
+
+    let suggestionDebounceTimer = null;
+    let currentSuggestions = [];
+    let activeSuggestionIndex = -1;
+
+    function initLocationSuggestions() {
+      const input = document.getElementById('locationSearchInput');
+      const container = document.getElementById('locationSuggestionsContainer');
+      if (!input || !container) return;
+
+      input.addEventListener('input', (e) => {
+        const q = e.target.value.trim();
+        clearTimeout(suggestionDebounceTimer);
+        if (!q || q.length < 1) {
+          hideSuggestions();
+          return;
+        }
+
+        suggestionDebounceTimer = setTimeout(async () => {
+          try {
+            const list = await API.suggestLocations(q);
+            if (list && list.length > 0) {
+              currentSuggestions = list;
+              renderSuggestions(list);
+            } else {
+              hideSuggestions();
+            }
+          } catch (err) {
+            console.warn("Could not fetch location suggestions:", err);
+            hideSuggestions();
+          }
+        }, 180);
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (container.style.display !== 'block') return;
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          activeSuggestionIndex = Math.min(activeSuggestionIndex + 1, currentSuggestions.length - 1);
+          highlightSuggestion(activeSuggestionIndex);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          activeSuggestionIndex = Math.max(activeSuggestionIndex - 1, 0);
+          highlightSuggestion(activeSuggestionIndex);
+        } else if (e.key === 'Enter') {
+          if (activeSuggestionIndex >= 0 && activeSuggestionIndex < currentSuggestions.length) {
+            e.preventDefault();
+            selectSuggestionLocation(currentSuggestions[activeSuggestionIndex]);
+          }
+        } else if (e.key === 'Escape') {
+          hideSuggestions();
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!input.contains(e.target) && !container.contains(e.target)) {
+          hideSuggestions();
+        }
+      });
+    }
+
+    function renderSuggestions(list) {
+      const container = document.getElementById('locationSuggestionsContainer');
+      if (!container) return;
+      activeSuggestionIndex = -1;
+      container.innerHTML = list.map((item, idx) => `
+        <div class="loc-suggestion-item" id="suggestionItem_${idx}" onclick="selectSuggestionLocation(currentSuggestions[${idx}])">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <div>
+              <div style="font-weight:700; color:var(--charcoal-deep); font-size:0.88rem;">${escapeHtml(item.name)}</div>
+              <div style="font-size:0.76rem; color:var(--text-muted); margin-top:2px;">
+                ${escapeHtml(item.category || 'Location Hub')} &bull; GPS: <code>${item.latitude.toFixed(4)}, ${item.longitude.toFixed(4)}</code>
+              </div>
+            </div>
+            <span style="font-size:0.72rem; font-weight:600; color:var(--teal-dark); background:var(--teal-soft); padding:3px 8px; border-radius:4px; white-space:nowrap;">
+              Select &rarr;
+            </span>
+          </div>
+        </div>
+      `).join('');
+      container.style.display = 'block';
+    }
+
+    function highlightSuggestion(index) {
+      document.querySelectorAll('.loc-suggestion-item').forEach((el, idx) => {
+        el.classList.toggle('active', idx === index);
+      });
+      const el = document.getElementById(`suggestionItem_${index}`);
+      if (el) el.scrollIntoView({ block: 'nearest' });
+    }
+
+    function selectSuggestionLocation(item) {
+      if (!item) return;
+      currentLat = item.latitude;
+      currentLng = item.longitude;
+      currentLocationName = item.name;
+      const input = document.getElementById('locationSearchInput');
+      if (input) input.value = item.name;
+      hideSuggestions();
+      document.querySelectorAll('.geo-btn').forEach(b => b.classList.remove('active'));
+      updateLocationDisplay();
+      runSearch();
+    }
+
+    function hideSuggestions() {
+      const container = document.getElementById('locationSuggestionsContainer');
+      if (container) {
+        container.style.display = 'none';
+        container.innerHTML = '';
+      }
+      activeSuggestionIndex = -1;
+    }
+
+    function toggleScoringGuide() {
+      const details = document.getElementById('scoringGuideDetails');
+      const arrow = document.getElementById('scoringGuideArrow');
+      if (!details) return;
+      const isHidden = details.style.display === 'none' || !details.style.display;
+      details.style.display = isHidden ? 'block' : 'none';
+      if (arrow) arrow.innerHTML = isHidden ? 'Hide Scoring Weights &uarr;' : 'View Scoring Weights &darr;';
+    }
+
+    function toggleScoreDetails(id) {
+      const box = document.getElementById(`scoreDetailsBox_${id}`);
+      if (box) {
+        box.style.display = box.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function setPresetLocation(name, lat, lng, btn) {
+      currentLat = lat;
+      currentLng = lng;
+      currentLocationName = name;
+      document.querySelectorAll('.geo-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      const input = document.getElementById('locationSearchInput');
+      if (input) input.value = name;
+      updateLocationDisplay();
+      runSearch();
+    }
+
+    function updateLocationDisplay() {
+      const display = document.getElementById('geoCoordsDisplay');
+      if (display) {
+        display.innerHTML = `Location: <strong>${currentLocationName}</strong> &bull; GPS: <code>${currentLat.toFixed(4)}, ${currentLng.toFixed(4)}</code>`;
+      }
+    }
+
+    async function handleLocationSearchSubmit(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById('locationSearchInput');
+      const query = input ? input.value.trim() : '';
+      if (!query) {
+        alert("Please enter a location name, landmark, or coordinates.");
+        return;
+      }
+
+      const display = document.getElementById('geoCoordsDisplay');
+      if (display) {
+        display.innerHTML = `<em>Resolving location for "${query}"...</em>`;
+      }
+
+      try {
+        const res = await API.geocodeLocation(query);
+        if (res && res.latitude && res.longitude) {
+          currentLat = res.latitude;
+          currentLng = res.longitude;
+          currentLocationName = res.name || query;
+          document.querySelectorAll('.geo-btn').forEach(b => b.classList.remove('active'));
+          updateLocationDisplay();
+          runSearch();
+        } else {
+          resolveLocationLocally(query);
+        }
+      } catch (err) {
+        console.warn("Geocode error, falling back locally:", err);
+        resolveLocationLocally(query);
+      }
+    }
+
+    function resolveLocationLocally(query) {
+      const q = query.toLowerCase();
+      const dict = {
+        'park street': { lat: 22.5550, lng: 88.3510, name: 'Park Street, Central District' },
+        'esplanade': { lat: 22.5680, lng: 88.3520, name: 'Esplanade, Central District' },
+        'howrah': { lat: 22.5830, lng: 88.3426, name: 'Howrah Station Area' },
+        'salt lake': { lat: 22.5690, lng: 88.4050, name: 'Salt Lake Sector V' },
+        'shyambazar': { lat: 22.5990, lng: 88.3710, name: 'Shyambazar, North District' },
+        'alipore': { lat: 22.5330, lng: 88.3290, name: 'Alipore, South District' },
+        'gariahat': { lat: 22.5180, lng: 88.3650, name: 'Gariahat, South District' },
+        'new town': { lat: 22.5867, lng: 88.4754, name: 'New Town, Rajarhat' },
+        'jadavpur': { lat: 22.4980, lng: 88.3710, name: 'Jadavpur, South District' },
+        'dum dum': { lat: 22.6540, lng: 88.4467, name: 'Dum Dum Airport Area' },
+        'behala': { lat: 22.4988, lng: 88.3184, name: 'Behala, South-West District' },
+        'sealdah': { lat: 22.5670, lng: 88.3710, name: 'Sealdah Central' }
+      };
+
+      for (let k in dict) {
+        if (q.includes(k) || k.includes(q)) {
+          setPresetLocation(dict[k].name, dict[k].lat, dict[k].lng, null);
+          return;
+        }
+      }
+
+      setPresetLocation(query + ' (Custom Area)', 22.5726, 88.3639, null);
+    }
+
+    function detectUserRealGPS(btn) {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+      }
+      btn.innerText = "Locating...";
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          btn.innerText = "GPS Detected";
+          currentLat = pos.coords.latitude;
+          currentLng = pos.coords.longitude;
+          currentLocationName = "Real Device GPS Location";
+          document.querySelectorAll('.geo-btn').forEach(b => b.classList.remove('active'));
+          updateLocationDisplay();
+          const input = document.getElementById('locationSearchInput');
+          if (input) input.value = `${currentLat.toFixed(4)}, ${currentLng.toFixed(4)}`;
+          runSearch();
+          setTimeout(() => { btn.innerText = "Auto-Detect Real GPS"; }, 3000);
+        },
+        err => {
+          btn.innerText = "Auto-Detect Real GPS";
+          alert("Could not retrieve GPS coordinates: " + err.message);
+        }
+      );
+    }
+
+    function selectEmergencyType(code, btn) {
+      selectedCategory = code;
+      document.querySelectorAll('.em-type-card').forEach(c => c.classList.remove('selected'));
+      btn.classList.add('selected');
+      runSearch();
+    }
+
+    async function runSearch() {
+      const banner = document.getElementById('criteriaSummaryBanner');
+      banner.innerHTML = `<span style="color:var(--text-muted);"><em>Evaluating 6 metropolitan hospitals, computing Haversine distances, on-duty specialist availability, and equipment readiness for <strong>${selectedCategory}</strong>...</em></span>`;
+
+      try {
+        const data = await API.findHospitals(currentLat, currentLng, selectedCategory, currentLocationName);
+        currentHospitalsData = data;
+        renderMatches(data);
+      } catch (err) {
+        banner.innerHTML = `<span style="color:var(--desert-dark);">Unable to fetch hospital capacity: ${err.message}. Please ensure the service is active.</span>`;
+      }
+    }
+
+    function renderMatches(data) {
+      const banner = document.getElementById('criteriaSummaryBanner');
+      banner.innerHTML = `
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;">
+          <div>
+            <strong>Target Emergency:</strong> ${data.emergencyTitle} &nbsp;|&nbsp;
+            <strong>Specialist Needed:</strong> <strong style="color:var(--teal-dark);">${data.requiredSpecialty}</strong> &nbsp;|&nbsp;
+            <strong>Hospitals Evaluated:</strong> ${data.totalHospitalsFound} open facilities
+          </div>
+          <div>
+            <span style="font-size:0.82rem; color:var(--text-muted);">Real-time clinical readiness • Strictly open facilities only</span>
+          </div>
+        </div>
+      `;
+
+      // 1. Render Best Equipped Hospitals (Readiness Score)
+      const bestGrid = document.getElementById('bestHospitalsContainer');
+      const openBest = (data.topBestHospitals || []).filter(h => h.open);
+      if (!openBest || openBest.length === 0) {
+        bestGrid.innerHTML = '<p style="color:var(--text-muted); padding: 20px 0;">No hospitals currently found with emergency bed capacity.</p>';
+      } else {
+        bestGrid.innerHTML = openBest.map((h, i) => renderHospitalCard(h, i + 1, true)).join('');
+      }
+
+      // 2. Render Nearest Hospitals (Closest Road Distance)
+      const nearestGrid = document.getElementById('nearestHospitalsContainer');
+      if (nearestGrid) {
+        const openNearest = (data.topNearestHospitals || []).filter(h => h.open);
+        if (!openNearest || openNearest.length === 0) {
+          nearestGrid.innerHTML = '<p style="color:var(--text-muted); padding: 20px 0;">No open hospitals found within driving radius.</p>';
+        } else {
+          nearestGrid.innerHTML = openNearest.map((h, i) => renderHospitalCard(h, i + 1, false)).join('');
+        }
+      }
+    }
+
+    function renderHospitalCard(h, rank, isBest) {
+      const rankClass = rank === 1 ? 'rank-first' : (rank === 2 ? 'rank-second' : 'rank-third');
+      const rankTitle = rank === 1 ? 'TOP CHOICE' : 'RECOMMENDED';
+      const cleanPhone = (h.contactNumber || "+913324567890").replace(/\s+/g, '');
+      const avgRating = h.averageRating ? h.averageRating.toFixed(1) : '4.8';
+      const reviewCount = h.totalReviews || 12;
+
+      return `
+        <div class="hosp-card best-equipped-card">
+          <div class="hosp-rank-pill ${rankClass}">#${rank} ${rankTitle}</div>
+
+          <div>
+            <h3 class="hosp-name">${h.name}</h3>
+            <p style="font-size:0.83rem; color:var(--text-muted); margin-bottom: 4px;">${h.address || 'Address on record'}</p>
+
+            <!-- Dynamic Patient Rating Badge -->
+            <div style="display:flex; align-items:center; gap:6px; margin: 4px 0 10px 0;">
+              <span style="color:#f59e0b; font-weight:800; font-size:0.88rem;">★ ${avgRating}</span>
+              <span style="color:var(--text-muted); font-size:0.75rem;">(${reviewCount} patient reviews)</span>
+            </div>
+
+            <div class="hosp-meta-row">
+              <span class="hosp-pill">Distance: <strong>${h.distanceFormatted}</strong></span>
+              <span class="hosp-pill">Transit: <strong>${h.estimatedTravelTime}</strong></span>
+              <span class="hosp-pill">Beds: <strong>${h.availableBeds}</strong></span>
+              <span class="hosp-pill" style="color: ${h.availableICUBeds > 0 ? 'var(--mint-dark)' : 'var(--desert-dark)'}">
+                ICU: <strong>${h.availableICUBeds}</strong>
+              </span>
+            </div>
+
+            ${isBest ? `
+              <div class="score-track-container">
+                <div class="score-track-header">
+                  <span>Emergency Readiness Score</span>
+                  <span style="color: var(--desert-dark); font-weight:700;">${h.overallScore} / 100</span>
+                </div>
+                <div class="score-track">
+                  <div class="score-fill" style="width: ${h.overallScore}%;"></div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                  <button type="button" onclick="toggleScoreDetails(${h.id})" style="background:none; border:none; padding:0; color:var(--teal-dark); font-size:0.76rem; font-weight:700; cursor:pointer; text-decoration:underline;">
+                    View Score Breakdown &darr;
+                  </button>
+                  <span style="font-size:0.72rem; color:var(--text-muted);">0 - 100 Clinical Index</span>
+                </div>
+
+                <div id="scoreDetailsBox_${h.id}" style="display:none; background:var(--bg-canvas); border:1px solid var(--border-subtle); border-radius:6px; padding:8px 10px; margin-top:6px; font-size:0.75rem; color:var(--text-body);">
+                  <div style="font-weight:700; color:var(--charcoal-deep); margin-bottom:4px; border-bottom:1px solid var(--border-subtle); padding-bottom:3px;">
+                    Algorithm Score Breakdown:
+                  </div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                    <span>Specialist on Duty:</span>
+                    <strong style="color:var(--teal-dark);">${h.specialistScore !== undefined ? h.specialistScore : (h.hasMatchingSpecialist ? 35 : 15)} / 35 pts</strong>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                    <span>Critical ICU Capacity:</span>
+                    <strong style="color:var(--mint-dark);">${h.icuScore !== undefined ? h.icuScore : Math.min(20, h.availableICUBeds * 5)} / 20 pts</strong>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                    <span>Emergency Equipment:</span>
+                    <strong style="color:var(--desert-dark);">${h.equipmentScore !== undefined ? h.equipmentScore : 16} / 18 pts</strong>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                    <span>General Emergency Beds:</span>
+                    <strong style="color:var(--charcoal-deep);">${h.bedScore !== undefined ? h.bedScore : Math.min(15, h.availableBeds)} / 15 pts</strong>
+                  </div>
+                  <div style="display:flex; justify-content:space-between;">
+                    <span>Distance Proximity (${h.distanceFormatted}):</span>
+                    <strong style="color:var(--charcoal-deep);">${h.proximityScore !== undefined ? h.proximityScore : Math.max(0, 12 - h.distanceKm).toFixed(1)} / 12 pts</strong>
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+
+            <ul class="hosp-highlights-list">
+              ${(h.matchHighlights || []).slice(0, 3).map(hl => `<li>${hl}</li>`).join('')}
+            </ul>
+          </div>
+
+          <!-- Clean 3 Action Buttons -->
+          <div style="display:flex; gap:8px; margin-top:14px;">
+            <a href="tel:${cleanPhone}" class="btn btn-mint" style="flex:1; text-align:center; font-size:0.82rem; padding:9px 10px; font-weight:700; text-decoration:none;" title="Call Hospital Emergency Desk">
+              Call ER
+            </a>
+            <button class="btn btn-desert" style="flex:1; font-size:0.82rem; padding:9px 10px; font-weight:700;" onclick="openAlertModal(${h.id}, '${h.name.replace(/'/g, "\\'")}')">
+              Notify Ward
+            </button>
+            <button class="btn btn-subtle" style="flex:1; font-size:0.82rem; padding:9px 10px; font-weight:700;" onclick="openDetailsModal(${h.id})">
+              Details
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // DETAILS MODAL
+    // ==========================================
+    async function openDetailsModal(hospitalId) {
+      const modal = document.getElementById('hospitalModalOverlay');
+      const inner = document.getElementById('modalContentInner');
+      inner.innerHTML = '<p>Loading complete hospital resources and doctor roster...</p>';
+      modal.style.display = 'flex';
+
+      try {
+        const data = await API.getPublicHospital(hospitalId);
+        const h = data.hospital;
+        const doctors = data.doctors || [];
+
+        inner.innerHTML = `
+          <h2 style="font-size: 1.45rem; font-weight: 800; color:var(--charcoal-dark); margin-bottom: 4px;">${h.name}</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 16px;">${h.address || 'Address'} •  ${h.contactNumber || 'Emergency Desk'}</p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 18px;">
+            <div style="background:var(--bg-surface-subtle); padding:10px; border-radius:10px; border:1px solid var(--border-subtle);">
+              <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">BEDS AVAILABLE</div>
+              <div style="font-size:1.3rem; font-weight:800; color:var(--charcoal-dark);">${h.availableBeds} / ${h.totalBeds}</div>
+            </div>
+            <div style="background:var(--bg-surface-subtle); padding:10px; border-radius:10px; border:1px solid var(--border-subtle);">
+              <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">ICU CAPACITY</div>
+              <div style="font-size:1.3rem; font-weight:800; color:var(--mint-dark);">${h.availableICUBeds} / ${h.totalICUBeds}</div>
+            </div>
+            <div style="background:var(--bg-surface-subtle); padding:10px; border-radius:10px; border:1px solid var(--border-subtle);">
+              <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">VENTILATORS</div>
+              <div style="font-size:1.3rem; font-weight:800; color:var(--charcoal-dark);">${h.ventilators || 0} Units</div>
+            </div>
+            <div style="background:var(--bg-surface-subtle); padding:10px; border-radius:10px; border:1px solid var(--border-subtle);">
+              <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">AMBULANCES</div>
+              <div style="font-size:1.3rem; font-weight:800; color:var(--charcoal-dark);">${h.ambulances || 0} Ready</div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 1.05rem; font-weight: 700; color:var(--charcoal-dark); margin-bottom: 8px;"> Registered Doctors &amp; Duty Status</h3>
+          <div style="background: var(--bg-surface-subtle); border-radius: 10px; padding: 12px; margin-bottom: 20px; border:1px solid var(--border-subtle); max-height: 220px; overflow-y: auto;">
+            ${doctors.length === 0 ? '<p style="color:var(--text-muted); font-size:0.85rem;">No doctors registered in public profile.</p>' :
+              doctors.map(d => `
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-subtle);">
+                  <div>
+                    <strong style="font-size:0.9rem; color:var(--charcoal-dark);">${d.name}</strong>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">${d.qualification || ''} • ${d.experienceYears} yrs experience</div>
+                  </div>
+                  <div style="text-align: right;">
+                    <span class="badge ${d.onDuty ? 'badge-mint' : 'badge-desert'}">${d.onDuty ? 'On Duty' : 'Off Duty'}</span>
+                    <div style="font-size: 0.75rem; color: var(--teal-dark); font-weight:600; margin-top: 2px;">${d.specialization}</div>
+                  </div>
+                </div>
+              `).join('')}
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-desert" style="flex:1;" onclick="openAlertModal(${h.id}, '${h.name.replace(/'/g, "\\'")}')">
+              Notify Ward in Advance
+            </button>
+            <a href="https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${currentLat},${currentLng};${h.latitude},${h.longitude}"
+               target="_blank" class="btn btn-mint" style="flex:1; text-align:center;">
+              Live Route Navigation
+            </a>
+          </div>
+        `;
+      } catch (err) {
+        inner.innerHTML = `<p style="color:var(--desert-dark);">Failed to load hospital details: ${err.message}</p>`;
+      }
+    }
+
+    // ==========================================
+    // ALERT MODAL
+    // ==========================================
+    function openAlertModal(hospitalId, hospitalName) {
+      const modal = document.getElementById('hospitalModalOverlay');
+      const inner = document.getElementById('modalContentInner');
+      modal.style.display = 'flex';
+
+      inner.innerHTML = `
+        <h2 style="font-size: 1.35rem; color: var(--desert-dark); margin-bottom: 4px;">Dispatch Emergency Pre-Arrival Alert</h2>
+        <p style="color: var(--text-body); font-size: 0.88rem; margin-bottom: 16px;">
+          This directly notifies the emergency room at <strong>${hospitalName || 'the hospital'}</strong>.
+        </p>
+
+        <form onsubmit="handleSendAlert(event, ${hospitalId})">
+          <div style="margin-bottom: 12px;">
+            <label style="display:block; font-size: 0.82rem; color: var(--text-body); font-weight: 600; margin-bottom: 4px;">Patient Name</label>
+            <input type="text" id="alertPatientName" value="Emergency Patient" style="width:100%; padding:10px 12px; background:var(--bg-surface); border:1px solid var(--border-muted); border-radius:8px; color:var(--text-main);" required>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="display:block; font-size: 0.82rem; color: var(--text-body); font-weight: 600; margin-bottom: 4px;">Contact Phone Number</label>
+            <input type="text" id="alertPatientPhone" value="+91 98765 43210" style="width:100%; padding:10px 12px; background:var(--bg-surface); border:1px solid var(--border-muted); border-radius:8px; color:var(--text-main);" required>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="display:block; font-size: 0.82rem; color: var(--text-body); font-weight: 600; margin-bottom: 4px;">Emergency Notes / Symptoms</label>
+            <textarea id="alertNotes" rows="3" style="width:100%; padding:10px 12px; background:var(--bg-surface); border:1px solid var(--border-muted); border-radius:8px; color:var(--text-main); font-family:inherit;" placeholder="e.g. Unconscious, severe chest pain radiating to left shoulder..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-desert" style="width:100%;">
+            Transmit Alert to Ward &rarr;
+          </button>
+        </form>
+      `;
+    }
+
+    async function handleSendAlert(e, hospitalId) {
+      e.preventDefault();
+      try {
+        const res = await API.notifyHospital({
+          hospitalId,
+          emergencyType: selectedCategory,
+          severity: 'CRITICAL',
+          userLatitude: currentLat,
+          userLongitude: currentLng,
+          patientName: document.getElementById('alertPatientName').value,
+          patientPhone: document.getElementById('alertPatientPhone').value,
+          notes: document.getElementById('alertNotes').value
+        });
+
+        alert(`ALERT DISPATCHED TO ER WARD\nCase ID: #${res.caseId}\nHospital: ${res.hospitalName}\nStatus: ${res.status}\n\nThe emergency room team has been notified of your incoming transit.`);
+        closeModal();
+      } catch (err) {
+        alert("Alert submission failed: " + err.message);
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('hospitalModalOverlay').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

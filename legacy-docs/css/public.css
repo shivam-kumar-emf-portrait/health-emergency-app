@@ -1,0 +1,347 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap");
+
+* {
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  color: #e5e7eb;
+}
+
+/* NAVBAR */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  padding: 18px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(2,6,23,0.6);
+  backdrop-filter: blur(14px);
+  z-index: 1000;
+}
+
+.logo {
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.login-btn {
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
+  color: white;
+  cursor: pointer;
+}
+
+.login-btn:hover {
+  background: rgba(59,130,246,0.25);
+}
+
+/* HERO */
+.hero {
+  height: 100vh;
+  padding: 140px 20px 0;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 48px;
+  font-weight: 600;
+}
+
+.hero h1 span {
+  color: #3b82f6;
+}
+
+.hero p {
+  max-width: 700px;
+  margin: 20px auto;
+  color: #cbd5f5;
+}
+
+.cta {
+  margin-top: 25px;
+  padding: 14px 34px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.cta:hover {
+  box-shadow: 0 0 30px rgba(59,130,246,0.6);
+}
+
+/* SECTIONS */
+.section {
+  padding: 100px 40px;
+  text-align: center;
+}
+
+.section.dark {
+  background: rgba(255,255,255,0.03);
+}
+
+.section h2 {
+  font-size: 34px;
+  margin-bottom: 20px;
+}
+
+.wide {
+  max-width: 700px;
+  margin: auto;
+  color: #cbd5f5;
+}
+
+/* STATS */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+  gap: 25px;
+  margin-top: 40px;
+}
+
+.stat-card {
+  padding: 25px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.05);
+}
+
+/* FEATURES */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+  gap: 30px;
+  margin-top: 50px;
+}
+
+.feature {
+  padding: 30px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.05);
+}
+
+/* FLOW */
+.flow {
+  max-width: 600px;
+  margin: auto;
+  text-align: left;
+  font-size: 18px;
+}
+
+.flow li {
+  margin-bottom: 12px;
+}
+
+/* FINAL CTA */
+.final {
+  padding: 120px 20px;
+  text-align: center;
+}
+
+
+
+/* ================= HERO WOW EFFECT ================= */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+}
+
+/* HERO CONTENT ANIMATION */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  animation: fadeUp 1.2s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+
+/* ECG LINE */
+.ecg-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  opacity: 0.15;
+  z-index: 1;
+  animation: ecgMove 4s linear infinite;
+}
+
+@keyframes ecgMove {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-200px); }
+}
+
+/* FLOATING ELEMENTS */
+.floating {
+  position: absolute;
+  opacity: 0.08;
+  animation: float 18s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-30px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Heart Outline */
+.heart-outline {
+  width: 120px;
+  height: 120px;
+  border: 2px solid #3b82f6;
+  border-radius: 50%;
+  top: 20%;
+  left: 15%;
+}
+
+/* Medical Cross */
+.cross {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(#3b82f6, #2563eb);
+  clip-path: polygon(
+    40% 0%, 60% 0%, 60% 40%, 100% 40%, 100% 60%, 
+    60% 60%, 60% 100%, 40% 100%, 
+    40% 60%, 0% 60%, 0% 40%, 40% 40%
+  );
+  top: 60%;
+  right: 15%;
+}
+
+/* Dot Grid */
+.dot-grid {
+  width: 150px;
+  height: 150px;
+  background-image: radial-gradient(#3b82f6 2px, transparent 2px);
+  background-size: 20px 20px;
+  top: 30%;
+  right: 25%;
+}
+
+/* CTA SHIMMER */
+.cta {
+  position: relative;
+  overflow: hidden;
+}
+
+.cta::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.4),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: shimmer 5s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  50% { left: 120%; }
+  100% { left: 120%; }
+}
+
+/* ================= CURSOR GLOW ================= */
+
+.cursor-glow {
+  position: fixed;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(59,130,246,0.15), transparent 60%);
+  pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+}
+/* ================= SCROLL REVEAL ================= */
+
+.section,
+.final {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
+
+.section.visible,
+.final.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* ================= PROFESSIONAL PUMPING HEART ================= */
+
+.heart-3d {
+  position: absolute;
+  right: 12%;
+  top: 35%;
+  width: 90px;
+  height: 90px;
+  transform: rotate(-45deg);
+  background: linear-gradient(145deg, #ff4d6d, #b91c1c);
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.4),
+    inset -8px -8px 20px rgba(0,0,0,0.4),
+    inset 8px 8px 20px rgba(255,255,255,0.08);
+  border-radius: 20px;
+  animation: heartbeat 1.8s ease-in-out infinite;
+  opacity: 0.18;
+}
+
+.heart-3d::before,
+.heart-3d::after {
+  content: "";
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  background: inherit;
+  border-radius: 50%;
+  box-shadow:
+    inset -6px -6px 15px rgba(0,0,0,0.4),
+    inset 6px 6px 15px rgba(255,255,255,0.08);
+}
+
+.heart-3d::before {
+  top: -45px;
+  left: 0;
+}
+
+.heart-3d::after {
+  left: 45px;
+  top: 0;
+}
+
+/* HEARTBEAT ANIMATION */
+@keyframes heartbeat {
+  0%   { transform: rotate(-45deg) scale(1); }
+  10%  { transform: rotate(-45deg) scale(1.08); }
+  20%  { transform: rotate(-45deg) scale(1); }
+  30%  { transform: rotate(-45deg) scale(1.06); }
+  40%  { transform: rotate(-45deg) scale(1); }
+  100% { transform: rotate(-45deg) scale(1); }
+}

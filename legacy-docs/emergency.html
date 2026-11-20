@@ -1,0 +1,39 @@
+<body>
+
+  <div class="top-bar">
+    <button class="normal-mode-btn" onclick="goToNormalMode()">
+      ⬅ Go to Normal Mode
+      <link rel="stylesheet" href="css/emergency.css">
+    </button>
+  </div>
+
+  <div class="emergency-container">
+
+    <h1>Emergency Mode</h1>
+    <p class="sub">Select the type of emergency</p>
+
+    <div class="grid" id="emergencyTypes">
+      <button onclick="selectEmergency('CARDIAC')">❤️ Cardiac Arrest</button>
+      <button onclick="selectEmergency('RESPIRATORY')">🫁 Breathing Issue</button>
+      <button onclick="selectEmergency('TRAUMA')">🚗 Accident / Trauma</button>
+      <button onclick="selectEmergency('BLEEDING')">🩸 Heavy Bleeding</button>
+      <button onclick="selectEmergency('STROKE')">🧠 Stroke Symptoms</button>
+      <button onclick="selectEmergency('PREGNANCY')">🤰 Pregnancy Emergency</button>
+      <button onclick="selectEmergency('PEDIATRIC')">👶 Child Emergency</button>
+      <button onclick="selectEmergency('GENERAL')">❓ General Emergency</button>
+    </div>
+
+    <div id="hospitalResults"></div>
+
+  </div>
+
+  <!-- Hospital Details Modal -->
+  <div id="hospitalModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal()">×</span>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="js/emergency.js"></script>
+</body>
